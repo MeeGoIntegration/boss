@@ -25,7 +25,7 @@ DaemonKit::RuoteParticipants.configure do |config|
 
   # Register your classes as pseudo-participants, with work being delegated
   # according to the 'command' parameter passed in the process definition
-  config.register Sample
+  config.register CITA
 end
 
 DaemonKit::RuoteParticipants.run do
