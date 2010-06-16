@@ -1,0 +1,27 @@
+Making AMQP Participants
+
+Bootstrap
+=========
+Ensure the Bundler gem is installed on the system
+ sudo gem install bundler
+Ideally add /var/lib/gems/1.9.1/bin/ to PATH:
+ PATH=$PATH:/var/lib/gems/1.9.1/bin/
+
+Prepare .bundle/config to set the bundled_gems/ path and then:
+ bundle install
+
+
+Having done that we can do:
+ bundle exec daemon-kit obs   -i ruote
+ bundle exec daemon-kit cita  -i ruote
+ bundle exec daemon-kit img   -i ruote
+
+Now the */config/amqp.yml needs to be set
+
+defaults: &defaults
+  user: ruote
+  pass: ruote
+  host: amqpvm
+  vhost: ruote-test
+
+obs/bin/obs

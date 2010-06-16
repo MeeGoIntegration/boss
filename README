@@ -1,0 +1,88 @@
+BOSS - Build Orchestration Supervision System
+=============================================
+
+BOSS (nee Hadron) sits at the core of the build ecosystem and handles
+workflow automation.
+
+This project is structured as follows
+
+   .
+   |-components   :  BOSS component proxies for subsystems
+   |-db		  :  holding area for demo and other fs databases
+   |-demo	  :  demo code
+   |-doc	  :  Documentation
+   |-integration  :  Code related to more generic integration (eg python)
+   |-play	  :  Scratch area (not in git)
+   |-ruote	  :  Git clones of related ruote projects (use get-git.sh to clone/pull)
+   |---daemon-kit
+   |---ruote
+   |---ruote-amqp
+   |---ruote-fluo
+   |---ruote-kit
+   |---ruote-web
+
+That's from
+  ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' 
+
+TODO
+
+Setup a demo with reasonable participants
+Invoke a workflow from a non-ruby system
+HOWTO Demo
+
+AMQP and RabbitMQ
+=================
+
+Some Key AMQP Concepts:
+ virtual hosts
+ exchanges
+ queues
+ bindings
+
+A message/event is sent to the exchange.
+The exchange routes it to queues.
+
+References:
+  http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
+  http://www.redhat.com/docs/en-US/Red_Hat_Enterprise_MRG/1.0/html/Messaging_Tutorial/index.html
+  http://www.zeromq.org/whitepapers:amqp-analysis
+  http://www.rabbitmq.com/releases/rabbitmq-dotnet-client/v1.5.0/rabbitmq-dotnet-client-1.5.0-user-guide.pdf
+  http://www.rabbitmq.com/admin-guide.html
+
+amqplib docs:
+Use epydocgui to generate them
+  file:///maemo/devel/obs/hadron/tm/html/index.html
+
+
+To remove all durable Q/Ex
+rabbitmqctl list_exchanges
+rabbitmqctl stop_app
+rabbitmqctl reset
+rabbitmqctl start_app
+rabbitmqctl list_exchanges
+
+
+Workflow pages
+==============
+
+http://workflowpatterns.com/patterns
+
+Concepts
+ Workflow can span days/weeks/months
+ Participants can be people/machines
+ The approach is not state-machine based
+ Workitem - structured data - passed between participants
+ Expressions : Sequence, conditions, concurrence
+ Participants : Automated, human
+
+
+ruote-flo
+=========
+Graphical view of a workflow.
+
+
+Decision tables
+
+Demonstrate:
+* amqp - remote participants
+* restart "engine" ?

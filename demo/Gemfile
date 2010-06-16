@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+gem 'daemon-kit', :git =>"git://github.com/kennethkalmer/daemon-kit.git"
+gem 'amqp', :git =>"git://github.com/tmm1/amqp.git"
+gem 'rspec'
+gem 'eventmachine'
+gem 'json'

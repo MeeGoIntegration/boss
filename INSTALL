@@ -1,0 +1,89 @@
+Dependencies
+============
+
+Install rabbitmq on a server:
+ echo deb http://www.rabbitmq.com/debian/ testing main > /etc/apt/sources.list.d/rabbitmq.list
+ apt-get update
+ apt-get install rabbitmq-server
+
+On that server, for the demos we'll need:
+ rabbitmqctl add_vhost ruote-test
+ rabbitmqctl add_user ruote ruote
+ rabbitmqctl set_permissions -p ruote-test ruote '.*' '.*' '.*'
+
+Ruby
+====
+Ruby package management on Debian is.... interesting. It doesn't
+integrate naturally with native packaging. TBD.
+
+apt-get install build-essential git-core ruby1.9.1-full rubygems1.9.1
+
+On Debian ruby1.9 may not be fully configured (CHECK). This may be
+useful (see http://krnjevic.com/wp/?p=209 )
+
+update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 \
+--slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz \
+/usr/share/man/man1/ruby1.9.1.1.gz \
+--slave   /usr/bin/ri ri /usr/bin/ri1.9.1 \
+--slave   /usr/bin/irb irb /usr/bin/irb1.9.1 \
+--slave   /usr/bin/gem gem /usr/bin/gem1.9.1 \
+
+update-alternatives --config gem
+
+We need Bundler so as root:
+  gem1.8 install bundler
+and/or
+  gem1.9.1 install bundler
+
+Ruote + Co
+==========
+
+To install dependent gems, pull the git sources and install them run:
+  ./setup.sh
+
+(Note that rpsec seems to need to be installed as a gem)
+
+
+Demo
+====
+
+See the demo/README info
+Run ./RUN_DEMO.sh
+
+
+
+Python
+======
+
+Dependencies:
+  python-amqplib
+
+
+Managing Modules/Gems in Deployment
+===================================
+
+Two options : RVM and Bundler
+
+RVM appears to be a little like buildout for python
+rvm's primary use case is making it easy to install + test out multiple ruby interpeters fwiw
+  http://rvm.beginrescueend.com
+
+rvm is used by the ruoute team.
+
+To install:
+ # echo 'rvm_path=/maemo/devel/rvm/' > $HOME/.rvmrc
+ bash < <( curl http://rvm.beginrescueend.com/releases/rvm-install-head )
+
+Then follow instructions to install (or optionally use
+ source $HOME/.rvm/scripts/rvm
+or
+ source $rvm_path/scripts/rvm
+in each ruby shell
+
+RVM is a bit like gentoo - it builds *everything* (including ruby itself)
+
+Bundler is about avoiding vendor gems and keeps gems installed locally
+to the project. It's probably a sufficient solution and may be cleaner
+too.
+
+http://gembundler.com/
