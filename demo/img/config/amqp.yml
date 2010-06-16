@@ -15,10 +15,10 @@
 # * timeout  - Timeout
 
 defaults: &defaults
-  user: guest
-  pass: guest
-  host: localhost
-  vhost: /
+  user: ruote
+  pass: ruote
+  host: amqpvm
+  vhost: ruote-test
 
 development:
   <<: *defaults
