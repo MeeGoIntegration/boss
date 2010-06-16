@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby1.9.1
+#
+# Stub executable for img
+#
+
+require File.dirname(__FILE__) + '/../config/environment'
+
+DaemonKit::Application.exec( DAEMON_ROOT + '/libexec/img-daemon.rb' )
