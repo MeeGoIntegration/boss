@@ -1,20 +1,34 @@
 Making AMQP Participants
 
+Debian/Ubuntu packages:
+ruby1.8
+ruby1.8-dev
+rubygems1.8
+ri1.8
+
 Bootstrap
 =========
 Ensure the Bundler gem is installed on the system
  sudo gem install bundler
+
+For Ubuntu you may need:
+  https://edge.launchpad.net/~ubuntu-on-rails/+archive/ppa
+
 Ideally add /var/lib/gems/1.8/bin/ to PATH:
  PATH=$PATH:/var/lib/gems/1.8/bin/
+
+Don't forget to make sure you've got a copy of the upstream gems we're
+working on:
+ cd ../ruote
+ ./get-git.sh 
+ cd ../demo
 
 Prepare .bundle/config to set the bundled_gems/ path and then:
  bundle install
 
 
-Having done that we can do:
- bundle exec daemon-kit obs   -i ruote
- bundle exec daemon-kit cita  -i ruote
- bundle exec daemon-kit img   -i ruote
+Having done that we can do things like:
+ bundle exec daemon-kit new_participant   -i ruote
 
 Now the */config/amqp.yml needs to be set
 
