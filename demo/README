@@ -4,8 +4,8 @@ Bootstrap
 =========
 Ensure the Bundler gem is installed on the system
  sudo gem install bundler
-Ideally add /var/lib/gems/1.9.1/bin/ to PATH:
- PATH=$PATH:/var/lib/gems/1.9.1/bin/
+Ideally add /var/lib/gems/1.8/bin/ to PATH:
+ PATH=$PATH:/var/lib/gems/1.8/bin/
 
 Prepare .bundle/config to set the bundled_gems/ path and then:
  bundle install

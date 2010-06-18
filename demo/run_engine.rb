@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby1.9.1
+#!/usr/bin/env ruby
 # http://gist.github.com/144861
 #
 # Requirements:
