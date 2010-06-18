@@ -6,3 +6,4 @@ gem 'ruote-amqp', :path => "../ruote/ruote-amqp"
 gem 'rspec'
 gem 'eventmachine'
 gem 'json'
+gem 'yajl-ruby'
