@@ -6,7 +6,7 @@
 defaults: &defaults
   amqp:
     queues:
-      - work1
+      - obs
       #- work2
       #- work3
 

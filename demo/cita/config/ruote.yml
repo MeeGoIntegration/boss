@@ -6,7 +6,7 @@
 defaults: &defaults
   amqp:
     queues:
-      - work1
+      - cita
       #- work2
       #- work3
 
