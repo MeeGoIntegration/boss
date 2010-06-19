@@ -23,9 +23,11 @@ DaemonKit::RuoteParticipants.configure do |config|
   # Use AMQP as a workitem transport mechanism
   config.use :amqp
 
+#  AMQP.logging = true
+
   # Register your classes as pseudo-participants, with work being delegated
   # according to the 'command' parameter passed in the process definition
-  config.register OBS
+  config.register 'obs', OBS
 end
 
 DaemonKit::RuoteParticipants.run do
