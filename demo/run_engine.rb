@@ -40,8 +40,7 @@ engine = Ruote::Engine.new(
     Ruote::FsStorage.new('/tmp/work')
   )
 )
-
-RuoteAMQP::WorkitemListener.new( engine ) # This spawns a thread which listens for amqp responses
+RuoteAMQP::Receiver.new( engine ) # This spawns a thread which listens for amqp responses
 
 engine.register_participant( 'print_results' ) do |workitem|
   puts "============="
