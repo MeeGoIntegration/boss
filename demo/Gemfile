@@ -1,5 +1,5 @@
 source "http://rubygems.org"
-gem 'daemon-kit', :git =>"git://github.com/kennethkalmer/daemon-kit.git"
+gem 'daemon-kit', :path => "../ruote/daemon-kit"
 gem 'amqp', :git =>"git://github.com/tmm1/amqp.git"
 gem 'ruote', :path => "../ruote/ruote"
 gem 'ruote-amqp', :path => "../ruote/ruote-amqp"
