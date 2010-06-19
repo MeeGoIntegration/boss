@@ -6,7 +6,7 @@ class IMG < DaemonKit::RuotePseudoParticipant
     workitem['success'] = true
   end
 
-  def build
+  def image
     2.times { puts "" }
     image_time = rand 10
     puts "You need an image with  #{workitem['pkg']}.... just wait #{image_time} seconds"
