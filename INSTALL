@@ -6,50 +6,50 @@ Install rabbitmq on a server:
  apt-get update
  apt-get install rabbitmq-server
 
-On that server, for the demos we'll need:
+On that server, for the demos we'll need (as root or rabbitmq user):
  rabbitmqctl add_vhost ruote-test
  rabbitmqctl add_user ruote ruote
  rabbitmqctl set_permissions -p ruote-test ruote '.*' '.*' '.*'
 
+The demo refers to this amqp server as 'amqpvm' so put an entry in
+/etc/hosts to ensure that resolves correctly.
+
 Ruby
 ====
+
 Ruby package management on Debian is.... interesting. It doesn't
-integrate naturally with native packaging. TBD.
+integrate naturally with native packaging. To resolve this we'll use a
+single system gem called Bundler and then keep the rest in-project in
+a similar way to buildout for python. The goal will be to produce
+properly packaged versions of relevant gems. More notes below.
 
-apt-get install build-essential git-core ruby1.9.1-full rubygems1.9.1
+For now:
+ apt-get install build-essential git-core ruby1.8-full rubygems1.8 ruby1.8-dev ri1.8
 
-On Debian ruby1.9 may not be fully configured (CHECK). This may be
-useful (see http://krnjevic.com/wp/?p=209 )
+For Ubuntu you may need:
+  https://edge.launchpad.net/~ubuntu-on-rails/+archive/ppa
 
-update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 \
---slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz \
-/usr/share/man/man1/ruby1.9.1.1.gz \
---slave   /usr/bin/ri ri /usr/bin/ri1.9.1 \
---slave   /usr/bin/irb irb /usr/bin/irb1.9.1 \
---slave   /usr/bin/gem gem /usr/bin/gem1.9.1 \
-
-update-alternatives --config gem
-
-We need Bundler so as root:
+We need Bundler so as root (not sudo, it breaks permissions):
   gem1.8 install bundler
-and/or
-  gem1.9.1 install bundler
+
+I've had some problems that seemed to be 1.9.1 related; however that
+may be down to ruby inexperience. 1.9.1 should be investigated further
+as it offers native threading.
 
 Ruote + Co
 ==========
 
-To install dependent gems, pull the git sources and install them run:
-  ./setup.sh
+To pull the git sources for the local development copies of the gems run:
 
-(Note that rpsec seems to need to be installed as a gem)
+  cd ruote
+  ./get-git.sh
 
 
 Demo
 ====
 
-See the demo/README info
+See the demo/README info to setup the prerequisites
 Run ./RUN_DEMO.sh
-
 
 
 Python
@@ -64,8 +64,10 @@ Managing Modules/Gems in Deployment
 
 Two options : RVM and Bundler
 
-RVM appears to be a little like buildout for python
-rvm's primary use case is making it easy to install + test out multiple ruby interpeters fwiw
+RVM appears to be a little like buildout for python but rvm's primary
+use case is making it easy to install + test out multiple ruby
+interpeters.
+
   http://rvm.beginrescueend.com
 
 rvm is used by the ruoute team.
@@ -80,7 +82,9 @@ or
  source $rvm_path/scripts/rvm
 in each ruby shell
 
-RVM is a bit like gentoo - it builds *everything* (including ruby itself)
+RVM is a bit like gentoo - it builds *everything* (including ruby
+itself) and I don't think it's right for BOSS development but may be
+useful if we look at other rubies for performance in the future.
 
 Bundler is about avoiding vendor gems and keeps gems installed locally
 to the project. It's probably a sufficient solution and may be cleaner

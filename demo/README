@@ -1,18 +1,16 @@
-Making AMQP Participants
+Ruote+AMQP Demo
+===============
 
-Debian/Ubuntu packages:
-ruby1.8
-ruby1.8-dev
-rubygems1.8
-ri1.8
+This demo represents a code build system progressing through
+  develop->build->image->test
+
+It runs a mix of local and RabbitMQ/AMQP connected participants.
 
 Bootstrap
 =========
-Ensure the Bundler gem is installed on the system
- sudo gem install bundler
+Everything here is done as a normal user.
 
-For Ubuntu you may need:
-  https://edge.launchpad.net/~ubuntu-on-rails/+archive/ppa
+Ensure the Bundler gem is installed on the system (see ../INSTALL)
 
 Ideally add /var/lib/gems/1.8/bin/ to PATH:
  PATH=$PATH:/var/lib/gems/1.8/bin/
@@ -23,19 +21,31 @@ working on:
  ./get-git.sh 
  cd ../demo
 
-Prepare .bundle/config to set the bundled_gems/ path and then:
+Bundle has had .bundle/config set to point to bundled_gems/ as the
+project gem path and then:
  bundle install
 
+At this point you can
+ cd ..
+ ./RUN_DEMO.sh
+
+You'll get 4 xterm windows popping up representing each participant
+and the engine. Once they're up run
+ demo/START.sh
+and watch the participants operate. Note that success/failure is rnd()
+based.
+
+
+Playing with the code.
+======================
 
 Having done that we can do things like:
  bundle exec daemon-kit new_participant   -i ruote
 
-Now the */config/amqp.yml needs to be set
+If you create a new participant the 
+ */config/amqp.yml
+and
+ */config/ruote.yml
+need to be setup.
 
-defaults: &defaults
-  user: ruote
-  pass: ruote
-  host: amqpvm
-  vhost: ruote-test
-
-obs/bin/obs
+The logic is found in lib/*.rb and needs to be registered via libexec/*.rb
