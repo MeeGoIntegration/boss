@@ -29,10 +29,10 @@ engine = Ruote::Engine.new(
 ci_process = Ruote.process_definition :name => 'Ci Process' do
   sequence do
     developer
-    kit :command => '/OBS/build', :queue => 'obs'
-    kit :command => '/IMG/image', :queue => 'img'
+    kit :command => '/obs/build', :queue => 'obs', :reply_queue => "ruote_workitems"
+    kit :command => '/img/image', :queue => 'img', :reply_queue => "ruote_workitems"
     _if '${f:build_ok} == YES' do
-      kit :command => '/CITA/test', :queue => 'cita'
+      kit :command => '/cita/test', :queue => 'cita', :reply_queue => "ruote_workitems"
     end
     print_results
   end
@@ -55,28 +55,9 @@ real_ci_process = Ruote.process_definition :name => 'Ci Process' do
 end
 
 engine.register_participant( 'kit', RuoteAMQP::Participant )
-amqp_P=RuoteAMQP::Participant.new()
-
-# Define a builder to use the obs queue
-amqp_P.map_participant('builder', 'obs')
-
-# Define an imager to use the img queue
-amqp_P.map_participant('imager', 'img')
-
-# Define a tester to use the cita queue
-amqp_P.map_participant('tester', 'cita')
-
-engine.register_participant(:builder, amqp_P)
-engine.register_participant(:imager, amqp_P)
-engine.register_participant(:tester, amqp_P)
-
-
-#engine.register_participant( 'print_err' ) do |workitem|
-#  p [ :error, workitem.error ]
-#end
 
 puts "Launching Process"
-fei = engine.launch( real_ci_process )
+fei = engine.launch( ci_process )
 
 puts "Set it off, exiting"
 
