@@ -53,7 +53,6 @@ class DeveloperParticipant
   end
   def consume (workitem)
     workitem.fields['pkg'] = "shopper #{rand 5}.#{rand 10}.#{rand 10}"
-    workitem.fields['pkg'] = "shopper 1.2.3"
     puts "I've developed a package: #{workitem.fields['pkg']}"
     reply_to_engine(workitem)
   end
