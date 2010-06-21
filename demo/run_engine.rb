@@ -63,41 +63,15 @@ class DeveloperParticipant
 end
 engine.register_participant 'developer', DeveloperParticipant
 
-class ParticipantWrapper < RuoteAMQP::Participant
-  def consume( workitem )
-    workitem.params['reply_queue'] = "ruote_workitems" # Set a default
-    workitem.fields["params"] = 
-      workitem.params.merge(route).inject({}) { |h, (k, v)| h[k.to_s] = v; h }
-    super workitem
-  end
-end
 
-class OBS < ParticipantWrapper
-  def route
-    { 'command' => '/obs/build',
-      'queue' => 'obs',
-    }
-  end
-end
-engine.register_participant( 'builder', OBS )
+engine.register_participant( 'builder', RuoteAMQP::Participant,
+                             :command => '/obs/build', :queue => 'obs')
 
-class IMG < ParticipantWrapper
-  def route
-    { 'command' => '/img/image',
-      'queue' => 'img',
-    }
-  end
-end
-engine.register_participant( 'imager', IMG )
+engine.register_participant( 'imager', RuoteAMQP::Participant,
+                             :command => '/img/image', :queue => 'img', :forget => true)
 
-class CITA < ParticipantWrapper
-  def route
-    { 'command' => '/cita/test',
-      'queue' => 'cita',
-    }
-  end
-end
-engine.register_participant( 'tester', CITA )
+engine.register_participant( 'tester', RuoteAMQP::Participant,
+                             :command => '/cita/test', :queue => 'cita')
 
 # A block participant
 engine.register_participant( 'print_results' ) do |workitem|
