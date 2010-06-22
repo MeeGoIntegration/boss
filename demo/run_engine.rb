@@ -49,7 +49,6 @@ class DeveloperParticipant
   include Ruote::LocalParticipant
   def initialize (opts)
     @opts = opts
-    puts "opts %s" % opts
   end
   def consume (workitem)
     if workitem.fields.has_key? 'version'
