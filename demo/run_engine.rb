@@ -29,7 +29,7 @@ engine = Ruote::Engine.new(
 )
 
 # This spawns a thread which listens for amqp responses
-RuoteAMQP::Receiver.new( engine )
+RuoteAMQP::Receiver.new( engine, :launchitems => true )
 
 # This registers a general purpose 'remote' participant
 engine.register_participant( 'remote', RuoteAMQP::Participant )
@@ -52,7 +52,11 @@ class DeveloperParticipant
     puts "opts %s" % opts
   end
   def consume (workitem)
-    workitem.fields['pkg'] = "shopper #{rand 5}.#{rand 10}.#{rand 10}"
+    if workitem.fields.has_key? 'version'
+      workitem.fields['pkg'] = "shopper #{workitem.fields['version']}"
+    else
+      workitem.fields['pkg'] = "shopper #{rand 5}.#{rand 10}.#{rand 10}"
+    end
     puts "I've developed a package: #{workitem.fields['pkg']}"
     reply_to_engine(workitem)
   end
@@ -62,6 +66,14 @@ class DeveloperParticipant
   end
 end
 engine.register_participant 'developer', DeveloperParticipant
+
+class Trace < RuoteAMQP::Participant
+  def consume (workitem)
+    puts "Trace"
+    puts JSON.pretty_generate workitem.to_h
+    super workitem
+  end
+end
 
 
 engine.register_participant( 'builder', RuoteAMQP::Participant,
@@ -84,4 +96,4 @@ end
 
 puts "Engine running"
 
-sleep 50000
+engine.join()
