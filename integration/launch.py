@@ -33,9 +33,8 @@ msg.properties["delivery_mode"] = 2
 
 # Publish the message.
 
-# Notice that this is sent to the '' exchange (which is supposedly
-# 'amq.direct' but that doesn't seem to work) with a routing_key for
-# the queue
+# Notice that this is sent to the anonymous/'' exchange (which is
+# different to 'amq.direct') with a routing_key for the queue
 chan.basic_publish(msg, exchange='', routing_key='ruote_workitems')
 
 # and wrap up.
