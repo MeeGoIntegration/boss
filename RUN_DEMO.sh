@@ -10,6 +10,8 @@ nohup xterm -T BUILDER -e demo/OBS.sh 2>/dev/null &
 nohup xterm -T TESTER -e demo/CITA.sh 2>/dev/null &
 # Start a proxy for IMG
 nohup xterm -T IMAGER -e demo/IMG.sh 2>/dev/null &
+# Start a python participant called sizer
+nohup xterm -T SIZER -e demo/SIZER.sh 2>/dev/null &
 
 # 
 echo run : demo/START.sh

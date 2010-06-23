@@ -79,7 +79,10 @@ engine.register_participant( 'builder', RuoteAMQP::Participant,
                              :command => '/obs/build', :queue => 'obs')
 
 engine.register_participant( 'imager', RuoteAMQP::Participant,
-                             :command => '/img/image', :queue => 'img', :forget => true)
+                             :command => '/img/image', :queue => 'img')
+
+engine.register_participant( 'sizer', RuoteAMQP::Participant,
+                             :command => '/not/used', :queue => 'sizer')
 
 engine.register_participant( 'tester', RuoteAMQP::Participant,
                              :command => '/cita/test', :queue => 'cita')
@@ -89,6 +92,7 @@ engine.register_participant( 'print_results' ) do |workitem|
   puts "============="
   puts "Package #{workitem.fields['pkg']}"
   puts "Imaged in #{workitem.fields['image-time']}s"
+  puts "From python size.image is #{workitem.lookup('image.size')}"
   if workitem.fields['test_result'] then puts "Tested: #{workitem.fields['test_result']}" end
   puts "============="
 end

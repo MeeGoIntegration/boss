@@ -23,6 +23,7 @@ ci_process = Ruote.process_definition :name => 'Ci Process' do
   sequence :on_error => 'handle_issue' do
     developer
     builder
+    sizer
     imager
     _if '${f:build_ok} == YES' do
       tester
