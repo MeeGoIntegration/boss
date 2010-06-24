@@ -31,4 +31,6 @@ ruote-kit
   Fetch URL: git://github.com/kennethkalmer/ruote-kit.git
 ruote-web
   Fetch URL: git://github.com/jmettraux/ruote-web.git
+ruote-amqp-pyclient
+  Fetch URL: git://github.com/lbt/ruote-amqp-pyclient.git
 EOF
