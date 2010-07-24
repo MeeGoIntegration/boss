@@ -91,3 +91,28 @@ to the project. It's probably a sufficient solution and may be cleaner
 too.
 
 http://gembundler.com/
+
+Dependencies
+
+(s=packaged by suse, l=packaged by lbt)
+
+rabbitmq-server >=1.7.2
+
+ruote (lbt's version) :
+l rufus-json >= 0.2.3
+l rufus-cloche >= 0.1.17
+l rufus-dollar
+l rufus-mnemo >= 1.1.0
+s rufus-scheduler >= 2.0.5
+l rufus-treechecker >= 1.0.3
+s rake
+s yard
+s json
+s builder
+l mailtrap
+s jeweler
+
+ruote-amqp (lbt's version) :
+l rubygem-rufus-json >= 0.1.0  
+l rubygem-amqp >= 0.6.6  
+l rubygem-ruote >= 2.1.5  
