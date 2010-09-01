@@ -23,6 +23,10 @@ true
 rm -rf %{buildroot}/*
 cp -ra root/* %{buildroot}
 
+%pre
+/usr/sbin/groupadd -r boss 2> /dev/null || :
+/usr/sbin/useradd -r -o -s /bin/false -c "User for BOSS" -d /usr/lib/boss -g boss boss 2> /dev/null || :
+
 %post
 #!/bin/bash
 #
@@ -42,8 +46,7 @@ if [ -e /usr/sbin/rabbitmqctl ]; then
   rabbitmqctl add_user boss boss
   rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*'
 fi
-groupadd boss
-useradd boss -g boss
+%restart_on_update boss
 
 %postun
 #!/bin/bash
