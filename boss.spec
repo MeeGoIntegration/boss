@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.2
+Version: 0.3
 Release:1%{?dist}
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
@@ -86,7 +86,23 @@ rm -rf %{buildroot}
 /etc/sysconfig/boss
 /var/spool/boss/
 
+%package -n boss-obs-plugin
+Summary: MeeGo Build Orchestration Server System
+Group: Productivity/Networking/Web/Utilities
+Requires: obs-server perl-Net-RabbitMQ perl-JSON-XS perl-common-sense
+
+%description -n boss-obs-plugin
+This BOSS package configures the OBS servers to connect to the BOSS engine.
+
+%files -n boss-obs-plugin
+%defattr(-,root,root,-)
+/usr/lib/obs/server/plugins/notify_boss.pm
+%post -n boss-obs-plugin
+%postun -n boss-obs-plugin
+
 %changelog
+* Mon Aug 30 2010 David Greaves <david@dgreaves.com> - 0.3
+- Add obs-plugin
 * Sun Jul 25 2010 David Greaves <david@dgreaves.com> - 0.2
 - Add daemon-kit based engine
 * Thu Jul 22 2010 David Greaves <david@dgreaves.com> - 0.1
