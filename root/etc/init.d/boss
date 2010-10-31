@@ -43,7 +43,7 @@ case "$1" in
 	## Start daemon with startproc(8). If this fails
 	## the echo return value is set appropriate.
 
-	startproc -f $BOSS_BIN $BOSS_OPTS
+	$BOSS_BIN start $BOSS_OPTS
 
 	# Remember status and be verbose
 	rc_status -v
@@ -53,7 +53,7 @@ case "$1" in
 	## Stop daemon with killproc(8) and if this fails
 	## set echo the echo return value.
 
-	killproc -p $BOSS_PIDFILE -TERM $BOSS_BIN
+	$BOSS_BIN stop
 
 	# Remember status and be verbose
 	rc_status -v
