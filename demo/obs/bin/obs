@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-#
-# Stub executable for obs
-#
-
-require File.dirname(__FILE__) + '/../config/environment'
-
-DaemonKit::Application.exec( DAEMON_ROOT + '/libexec/obs-daemon.rb' )

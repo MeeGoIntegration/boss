@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-#
-# Stub executable for cita
-#
-
-require File.dirname(__FILE__) + '/../config/environment'
-
-DaemonKit::Application.exec( DAEMON_ROOT + '/libexec/cita-daemon.rb' )

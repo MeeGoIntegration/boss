@@ -1,7 +1,0 @@
-#!/usr/bin/env ruby
-#
-# Stub executable for boss
-
-require '/usr/lib/boss/config/environment'
-
-DaemonKit::Application.exec( '/usr/lib/boss/libexec/boss-daemon.rb' )
