@@ -8,3 +8,10 @@
 
 # Additional options that are passed to the Daemon.
 DAEMON_OPTS=""
+
+#SERVER_HOME=/var/lib/boss
+#SERVER_LOGDIR=/var/log/boss
+#SERVER_USER=boss
+#SERVER_NAME="BOSS"
+#SERVER_GROUP=boss
+
