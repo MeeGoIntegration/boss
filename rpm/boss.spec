@@ -26,11 +26,11 @@ install -D -m 755 rpm/boss.init %{buildroot}/etc/init.d/boss
 install -d %{buildroot}/usr/sbin
 ln -s -f /etc/init.d/boss %{buildroot}/usr/sbin/rcboss
 install -D -m 755 rpm/boss.conf %{buildroot}/etc/boss/boss.conf
-
+install -d %{buildroot}/var/log/boss
 
 %pre
 /usr/sbin/groupadd -r boss 2> /dev/null || :
-/usr/sbin/useradd -r -o -s /bin/false -c "User for BOSS" -d /usr/lib/boss -g boss boss 2> /dev/null || :
+/usr/sbin/useradd -r -o -s /bin/false -c "User for BOSS" -d /var/spool/boss -g boss boss 2> /dev/null || :
 
 %post
 #!/bin/bash
@@ -67,29 +67,20 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc INSTALL README
+/etc/service
+/etc/service/boss
+/etc/service/boss/run
+/etc/service/boss/log
+/etc/service/boss/log/run
 /usr/bin/boss
 /usr/lib/boss/
-/usr/lib/boss/libexec/
-/usr/lib/boss/libexec/boss-daemon.rb
-/usr/lib/boss/config/
-/usr/lib/boss/config/environments/
-/usr/lib/boss/config/arguments.rb
-/usr/lib/boss/config/boot.rb
-/usr/lib/boss/config/environment.rb
-/usr/lib/boss/config/environments/
-/usr/lib/boss/config/environments/development.rb
-/usr/lib/boss/config/environments/test.rb
-/usr/lib/boss/config/environments/production.rb
-/usr/lib/boss/config/pre-daemonize/
-/usr/lib/boss/config/pre-daemonize/readme
-/usr/lib/boss/config/post-daemonize/
-/usr/lib/boss/config/post-daemonize/readme
-/usr/lib/boss/lib/
-/usr/lib/boss/lib/boss.rb
+/usr/lib/boss
+/usr/lib/boss/boss-daemon.rb
 /usr/sbin/rcboss
 /etc/init.d/boss
-/etc/boss/boss.conf
-/var/spool/boss/
+%config(noreplace) /etc/boss/boss.conf
+%attr(755,boss,boss) /var/spool/boss/
+%attr(755,boss,boss) /var/log/boss/
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
