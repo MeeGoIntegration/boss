@@ -1,0 +1,5 @@
+boss (0.4-1) unstable; urgency=low
+
+  * Initial debian packaging
+
+ -- Islam Amer <islam.amer@nokia.com>  Tue, 08 Mar 2011 17:02:19 +0200

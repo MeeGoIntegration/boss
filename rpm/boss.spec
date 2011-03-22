@@ -21,7 +21,12 @@ true
 
 %install
 rm -rf %{buildroot}/*
-cp -ra root/* %{buildroot}
+cp -ra src/* %{buildroot}
+install -D -m 755 rpm/boss.init %{buildroot}/etc/init.d/boss
+install -d %{buildroot}/usr/sbin
+ln -s -f /etc/init.d/boss %{buildroot}/usr/sbin/rcboss
+install -D -m 755 rpm/boss.conf %{buildroot}/etc/boss/boss.conf
+
 
 %pre
 /usr/sbin/groupadd -r boss 2> /dev/null || :
@@ -83,7 +88,7 @@ rm -rf %{buildroot}
 /usr/lib/boss/lib/boss.rb
 /usr/sbin/rcboss
 /etc/init.d/boss
-/etc/sysconfig/boss
+/etc/boss/boss.conf
 /var/spool/boss/
 
 %package -n boss-obs-plugin
