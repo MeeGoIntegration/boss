@@ -6,12 +6,8 @@
 # This is a POSIX shell fragment
 #
 
-# Additional options that are passed to the Daemon.
-DAEMON_OPTS=""
+# The daemontools managed service directory
+SERVICE_DIR=/etc/service
 
-#SERVER_HOME=/var/lib/boss
-#SERVER_LOGDIR=/var/log/boss
-#SERVER_USER=boss
-#SERVER_NAME="BOSS"
-#SERVER_GROUP=boss
-
+# The true location of the daemon code and logs
+STORAGE_DIR=/var/lib/boss
