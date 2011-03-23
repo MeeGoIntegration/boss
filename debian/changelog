@@ -1,3 +1,9 @@
+boss (0.4-2) unstable; urgency=low
+
+  * Add dependencies to control
+
+ -- David Greaves <david@dgreaves.com>  Wed, 23 Mar 2011 16:57:44 +0000
+
 boss (0.4-1) unstable; urgency=low
 
   * Initial debian packaging
