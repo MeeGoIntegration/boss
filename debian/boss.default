@@ -6,8 +6,14 @@
 # This is a POSIX shell fragment
 #
 
+#SERVER_HOME=/var/lib/boss
+#SERVER_LOGDIR=/var/log/boss
+#SERVER_USER=boss
+#SERVER_NAME="BOSS"
+#SERVER_GROUP=boss
+
 # The daemontools managed service directory
 SERVICE_DIR=/etc/service
 
 # The true location of the daemon code and logs
-STORAGE_DIR=/var/lib/boss
+DAEMON_DIR=/var/lib/boss

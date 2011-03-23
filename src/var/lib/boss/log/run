@@ -1,2 +1,2 @@
 #!/bin/sh
-exec setuidgid boss multilog t /var/log/boss/boss.log
+exec setuidgid boss multilog t /var/log/boss/
