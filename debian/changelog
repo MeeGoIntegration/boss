@@ -1,3 +1,10 @@
+boss (0.4-9) unstable; urgency=low
+
+  * Don't allow rabbitmqctl failures to cause installation failure if the
+    users are already there
+
+ -- David Greaves <david@dgreaves.com>  Thu, 24 Mar 2011 21:02:57 +0000
+
 boss (0.4-8) unstable; urgency=low
 
   * Fix dependencies in control (including hack until gems are correctly packaged)

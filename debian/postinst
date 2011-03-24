@@ -74,9 +74,9 @@ case "$1" in
 	# 6. create the boss user/vhost etc if we have rabbitmqctl
 	if [ -e /usr/sbin/rabbitmqctl ]; then
 	    echo "Adding boss exchange/user and granting access"
-	    rabbitmqctl add_vhost boss
-	    rabbitmqctl add_user boss boss
-	    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*'
+	    rabbitmqctl add_vhost boss || true
+	    rabbitmqctl add_user boss boss || true
+	    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
 	fi
 	;;
     abort-upgrade|abort-remove|abort-deconfigure)
