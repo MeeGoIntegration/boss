@@ -62,6 +62,12 @@ case "$1" in
 		fi
             fi
 	fi
+	# remove the boss user/vhost etc if we have rabbitmqctl
+	if [ -e /usr/sbin/rabbitmqctl ]; then
+	    echo "Removing boss vhost and user"
+	    rabbitmqctl delete_user boss
+	    rabbitmqctl delete_vhost boss
+	fi
 	;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
 	;;

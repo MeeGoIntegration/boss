@@ -70,6 +70,14 @@ case "$1" in
             chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
             chmod u=rwx,g=rxs,o= $SERVER_LOGDIR
 	fi
+
+	# 6. create the boss user/vhost etc if we have rabbitmqctl
+	if [ -e /usr/sbin/rabbitmqctl ]; then
+	    echo "Adding boss exchange/user and granting access"
+	    rabbitmqctl add_vhost boss
+	    rabbitmqctl add_user boss boss
+	    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*'
+	fi
 	;;
     abort-upgrade|abort-remove|abort-deconfigure)
 	;;
