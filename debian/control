@@ -8,7 +8,7 @@ Homepage: http://wiki.meego.com/BOSS
 
 Package: boss
 Architecture: all
-Depends: ${misc:Depends}, rabbitmq-server, daemontools-run, ruby, rubygems, ruby-ruote-amqp, ruby1.8-yajl, ruby-tzinfo
+Depends: ${misc:Depends}, rabbitmq-server, daemontools-run, ruby, rubygems, ruby-ruote-amqp, ruby1.8-yajl, ruby-tzinfo, ruby1.8-eventmachine, ruby-parser, ruby-sexp-processor, ruby-ruby2ruby, ruby-file-tail
 Description: MeeGo Build Orchestration Server System
  The BOSS package configures the servers used to connect BOSS participants.
 
