@@ -11,6 +11,8 @@ require 'yajl/json_gem'
 
 require 'mq'
 
+STDOUT.sync = true
+
 # FIXME: use: http://rubygems.org/gems/ini
 #          or http://rubygems.org/gems/inifile
 # and boss.config
