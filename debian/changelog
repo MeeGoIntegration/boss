@@ -1,6 +1,9 @@
-boss (0.4-7) unstable; urgency=low
+boss (0.4-8) unstable; urgency=low
 
-  * Add dependencies to control
+  * Fix dependencies in control (including hack until gems are correctly packaged)
+  * Create an init.d/ script
+  * Add Autoflush to the daemon to provide timely logging
+  * Create/delete Rabbit MQ users and vhosts in postinst/rm
 
  -- David Greaves <david@dgreaves.com>  Wed, 23 Mar 2011 16:57:44 +0000
 
