@@ -97,7 +97,7 @@ case "$ACTION" in
 
     log)
 	assert_service_exists
-	tail --follow=name ${DAEMON_DIR}/log/main/current
+	tail --follow=name ${SERVER_LOGDIR}/current
         ;;
 
     *)
