@@ -1,7 +1,8 @@
 Source: boss
 Section: net
 Priority: extra
-Maintainer: Islam Amer <islam.amer@nokia.com>
+Maintainer: David Greaves <david@dgreaves.com>
+Uploaders: Islam Amer <islam.amer@nokia.com>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.9.1
 Homepage: http://wiki.meego.com/BOSS
