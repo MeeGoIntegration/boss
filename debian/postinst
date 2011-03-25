@@ -28,11 +28,12 @@ case "$1" in
 	
         # Sane defaults:
      
-	[ -z "$SERVER_HOME" ]   && SERVER_HOME=/var/lib/boss
-	[ -z "$SERVER_LOGDIR" ] && SERVER_LOGDIR=/var/log/boss
-	[ -z "$SERVER_USER" ]   && SERVER_USER=boss
-	[ -z "$SERVER_NAME" ]   && SERVER_NAME="BOSS"
-	[ -z "$SERVER_GROUP" ]  && SERVER_GROUP=boss
+	[ -z "$SERVER_HOME" ]     && SERVER_HOME=/var/lib/boss
+	[ -z "$SERVER_LOGDIR" ]   && SERVER_LOGDIR=/var/log/boss
+	[ -z "$SERVER_DATABASE" ] && SERVER_DATABASE=/var/spool/boss
+	[ -z "$SERVER_USER" ]     && SERVER_USER=boss
+	[ -z "$SERVER_NAME" ]     && SERVER_NAME="BOSS"
+	[ -z "$SERVER_GROUP" ]    && SERVER_GROUP=boss
      
         # create user to avoid running server as root
         # 1. create group if not existing
@@ -41,8 +42,9 @@ case "$1" in
             addgroup --quiet --system $SERVER_GROUP 2>/dev/null ||true
             echo "..done"
 	fi
-        # 2. create homedir if not existing
+        # 2. create dirs if not existing
 	test -d $SERVER_HOME || mkdir $SERVER_HOME
+	test -d $SERVER_DATABASE || mkdir $SERVER_DATABASE
         # 3. create user if not existing
         if ! getent passwd | grep -q "^$SERVER_USER:"; then
             echo -n "Adding system user $SERVER_USER.."
@@ -69,6 +71,11 @@ case "$1" in
 	then
             chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
             chmod u=rwx,g=rxs,o= $SERVER_LOGDIR
+	fi
+	if ! dpkg-statoverride --list $SERVER_DATABASE >/dev/null
+	then
+            chown -R $SERVER_USER:$SERVER_GROUP $SERVER_DATABASE
+            chmod u=rwx,g=rxs,o= $SERVER_DATABASE
 	fi
 
 	# 6. create the boss user/vhost etc if we have rabbitmqctl

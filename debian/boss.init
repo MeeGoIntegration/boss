@@ -25,12 +25,12 @@ CONFIG=/etc/default/boss
 
 # Trim trailing /
 SERVICE_DIR=${SERVICE_DIR%/}
-DAEMON_DIR=${DAEMON_DIR%/}
+SERVER_HOME=${SERVER_HOME%/}
 
 
 assert_service_exists () {
-    if [ ! -e ${DAEMON_DIR} ]; then
-	echo "${SNAME} directory ${DAEMON_DIR} does not exist"
+    if [ ! -e ${SERVER_HOME} ]; then
+	echo "${SNAME} directory ${SERVER_HOME} does not exist"
 	exit 1
     fi
 }
@@ -41,7 +41,7 @@ d_start()
 {
         # Enable automatic start/stop/monitoring
 	if [ ! -e ${SERVICE_DIR}/${SNAME} ]; then
-	    ln -s ${DAEMON_DIR} ${SERVICE_DIR}/${SNAME}
+	    ln -s ${SERVER_HOME} ${SERVICE_DIR}/${SNAME}
 	    echo "${SNAME} enabled. Should start within 5 seconds"
 	fi
 }
@@ -55,10 +55,10 @@ d_stop() {
 	    rm ${SERVICE_DIR}/${SNAME}
 	fi
 	# Shut down the supervise and log too
-	svc -dx ${DAEMON_DIR}
+	svc -dx ${SERVER_HOME}
 	echo "Waiting 1 second to shut down logger"
 	sleep 1
-	svc -dx ${DAEMON_DIR}/log
+	svc -dx ${SERVER_HOME}/log
 }
 
 ACTION="$1"
@@ -78,17 +78,17 @@ case "$ACTION" in
     restart|force-reload)
 	assert_service_exists
 	# Take it down twice
-	svc -d ${DAEMON_DIR}
+	svc -d ${SERVER_HOME}
 	echo waiting 2 sec for graceful stop
 	sleep 2
 	echo restarting
-	svc -u ${DAEMON_DIR}
+	svc -u ${SERVER_HOME}
 	;;
 
     status)
 	assert_service_exists
-	if svok ${DAEMON_DIR}; then
-	    svstat ${DAEMON_DIR}
+	if svok ${SERVER_HOME}; then
+	    svstat ${SERVER_HOME}
 	else
 	    echo "Participant ${SNAME} is not running and has no supervisor"
 	    [ ! -e ${SERVICE_DIR}/${SNAME} ] && echo "It is not enabled for automatic running"
