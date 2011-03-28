@@ -1,3 +1,9 @@
+boss (0.4-12) unstable; urgency=low
+
+  * Depend ruote-amqp
+
+ -- David Greaves <david@dgreaves.com>  Mon, 28 Mar 2011 14:15:03 +0100
+
 boss (0.4-11) testing; urgency=low
 
   * Improve the dependencies now gem packaging is under control
