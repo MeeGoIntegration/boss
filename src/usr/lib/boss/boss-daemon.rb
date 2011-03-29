@@ -47,7 +47,8 @@ RuoteAMQP::Receiver.new( $engine, :launchitems => true )
 class BOSSRegistrar
   include Ruote::LocalParticipant
   def consume(workitem)
-    puts "Register a new participant", workitem.fields["name"]
+    puts "Register a new participant :", workitem.fields["name"]
+    puts "using queue ", workitem.fields["queue"]
     $engine.register_participant(workitem.fields["name"],
                                  RuoteAMQP::ParticipantProxy,
                                  :queue => workitem.fields["queue"],

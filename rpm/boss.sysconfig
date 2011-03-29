@@ -1,0 +1,20 @@
+# Defaults for boss initscript
+# sourced by /etc/init.d/boss
+# installed at /etc//boss by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# The true location of the daemon code and logs
+SERVER_HOME=/var/lib/boss
+SERVER_LOGDIR=/var/log/boss
+# Whilst BOSS uses the filesystem store
+SERVER_DATABASE=/var/spool/boss
+
+SERVER_USER=boss
+SERVER_NAME="BOSS"
+SERVER_GROUP=boss
+
+# The daemontools managed service directory
+SERVICE_DIR=/etc/service
