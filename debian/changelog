@@ -1,3 +1,9 @@
+boss (0.4-13) unstable; urgency=low
+
+  * Tiny update to the postinst
+
+ -- David Greaves <david@dgreaves.com>  Tue, 29 Mar 2011 14:13:56 +0100
+
 boss (0.4-12) unstable; urgency=low
 
   * Depend ruote-amqp
