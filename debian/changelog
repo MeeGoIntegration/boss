@@ -1,3 +1,9 @@
+boss (0.4-14) unstable; urgency=low
+
+  * Pipe log via tai64nlocal for readable timestamps
+
+ -- David Greaves <david@dgreaves.com>  Wed, 30 Mar 2011 16:40:13 +0100
+
 boss (0.4-13) unstable; urgency=low
 
   * Tiny update to the postinst

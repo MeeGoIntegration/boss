@@ -97,7 +97,7 @@ case "$ACTION" in
 
     log)
 	assert_service_exists
-	tail --follow=name ${SERVER_LOGDIR}/current
+	tail --follow=name ${SERVER_LOGDIR}/current | tai64nlocal
         ;;
 
     *)
