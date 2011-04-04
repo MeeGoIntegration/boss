@@ -2,7 +2,7 @@
 ### BEGIN INIT INFO
 # Provides:          boss
 # Required-Start:    $remote_fs $network $rabbitmq-server
-# Required-Stop:     $null
+# Required-Stop:     $remote_fs $network $rabbitmq-server
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: BOSS participant manager
