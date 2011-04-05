@@ -9,7 +9,7 @@ Source0: boss_%{version}.orig.tar.gz
 BuildRoot: %{name}-root-%(%{__id_u} -n)
 
 BuildRequires: -post-build-checks -rpmlint-Factory
-Requires: rabbitmq-server >= 1.7.2, daemontools, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby
+Requires: rabbitmq-server >= 1.7.2, daemontools, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-tzinfo
 %description
 The BOSS package configures the servers used to connect BOSS participants.
 
