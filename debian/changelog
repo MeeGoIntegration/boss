@@ -1,3 +1,9 @@
+boss (0.4-15) unstable; urgency=low
+
+  * fix rcboss
+
+ -- Islam Amer <islam.amer@nokia.com>  Tue, 05 Apr 2011 18:20:31 +0300
+
 boss (0.4-14) unstable; urgency=low
 
   * Pipe log via tai64nlocal for readable timestamps
