@@ -56,9 +56,11 @@ sub notify() {
     $paramRef->{'type'} = $type;
     $paramRef->{'time'} = time();
     my $mq = Net::RabbitMQ->new();
-    $mq->connect($BSConfig::BOSS_host, { user => $BSConfig::BOSS_user,
+    eval {
+        $mq->connect($BSConfig::BOSS_host, { user => $BSConfig::BOSS_user,
 					 password => $BSConfig::BOSS_passwd,
 					 vhost => "boss" });
+    };
     if ($@) {
       warn("BOSS Plugin: $@");
       return;
