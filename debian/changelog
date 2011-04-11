@@ -1,3 +1,9 @@
+boss (0.4-16) unstable; urgency=low
+
+  * Ensure the HOME env is set in 'run' to prevent ruby-inline errors
+
+ -- David Greaves <david@dgreaves.com>  Mon, 11 Apr 2011 13:58:25 +0100
+
 boss (0.4-15) unstable; urgency=low
 
   * fix rcboss
