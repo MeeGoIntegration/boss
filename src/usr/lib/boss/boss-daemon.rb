@@ -26,7 +26,7 @@ AMQP.settings[:vhost] = 'boss'
 $engine = Ruote::Engine.new(
   Ruote::Worker.new(
     # Use boss.config
-    Ruote::FsStorage.new('/var/spool/boss/boss_ruote_db')
+    Ruote::FsStorage.new(ENV['SERVER_DATABASE'])
   )
 )
 

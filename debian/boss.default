@@ -10,7 +10,7 @@
 SERVER_HOME=/var/lib/boss
 SERVER_LOGDIR=/var/log/boss
 # Whilst BOSS uses the filesystem store
-SERVER_DATABASE=/var/spool/boss
+SERVER_DATABASE=/var/spool/boss/boss_ruote_db
 
 SERVER_USER=boss
 SERVER_NAME="BOSS"
