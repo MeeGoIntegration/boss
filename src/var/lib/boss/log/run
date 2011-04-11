@@ -1,2 +1,3 @@
 #!/bin/sh
-exec setuidgid boss multilog t /var/log/boss/
+. /etc/default/boss
+exec setuidgid $SERVER_USER multilog t $SERVER_LOGDIR
