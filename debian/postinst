@@ -43,6 +43,7 @@ case "$1" in
 	fi
         # 2. create dirs if not existing
 	test -d $SERVER_HOME || mkdir $SERVER_HOME
+	test -d $SERVER_LOGDIR || mkdir $SERVER_LOGDIR
 	test -d $SERVER_DATABASE || mkdir $SERVER_DATABASE
         # 3. create user if not existing
         if ! getent passwd | grep -q "^$SERVER_USER:"; then
