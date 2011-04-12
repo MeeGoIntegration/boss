@@ -110,8 +110,7 @@ fi
 
 %postun
 #don't do anything in case of upgrade
-if [ ! $1 -eq 1 ] ; then
-
+if [ ! $1 -eq 1 ] ; then
     if [ -e /usr/sbin/rabbitmqctl ]; then
       echo "Removing boss exchange/user from RabbitMQ"
       rabbitmqctl delete_vhost boss
