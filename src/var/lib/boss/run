@@ -1,5 +1,7 @@
 #!/bin/sh
-. /etc/default/boss
+[ -f /etc/default/boss ] && . /etc/default/boss
+[ -f /etc/sysconfig/boss ] && . /etc/sysconfig/boss
+
 exec 2>&1
 export HOME=`eval echo ~$SERVER_USER`
 exec setuidgid $SERVER_USER /usr/lib/boss/boss-daemon.rb
