@@ -6,4 +6,6 @@ exec 2>&1
 # Make some environment variables available to boss
 export HOME=`eval echo ~$SERVER_USER`
 export SERVER_DATABASE
+# Keep the DB private but group readable
+umask 0007
 exec setuidgid $SERVER_USER /usr/lib/boss/boss-daemon.rb
