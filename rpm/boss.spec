@@ -109,17 +109,20 @@ fi
 %restart_on_update boss
 
 %postun
-#!/bin/bash
-if [ -e /usr/sbin/rabbitmqctl ]; then
-  echo "Removing boss exchange/user from RabbitMQ"
-  rabbitmqctl delete_vhost boss
-  rabbitmqctl delete_user boss
+#don't do anything in case of upgrade
+if [ ! $1 == 1 ] ; then
+
+    if [ -e /usr/sbin/rabbitmqctl ]; then
+      echo "Removing boss exchange/user from RabbitMQ"
+      rabbitmqctl delete_vhost boss
+      rabbitmqctl delete_user boss
+    fi
+    # remove the svcscan from inittab
+    sed -i -e '/^SN:/d' /etc/inittab
+    init q
+    svc -dx /etc/service/* || :
+    svc -dx /etc/service/*/log || :
 fi
-# remove the svcscan from inittab
-sed -i -e '/^SN:/d' /etc/inittab
-init q
-svc -dx /etc/service/* || :
-svc -dx /etc/service/*/log || :
 
 %insserv_cleanup
 
