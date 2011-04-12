@@ -72,13 +72,13 @@ usermod -c "$SERVER_NAME" \
     $SERVER_USER
 # 5. adjust file and directory permissions
 chown -R $SERVER_USER:$SERVER_GROUP $SERVER_HOME
-chmod u=rwx,g=rxs,o= $SERVER_HOME
+chmod -R u=rwx,g=rxs,o= $SERVER_HOME
 
 chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
-chmod u=rwx,g=rxs,o= $SERVER_LOGDIR
+chmod -R u=rwx,g=rxs,o= $SERVER_LOGDIR
 
 chown -R $SERVER_USER:$SERVER_GROUP $SERVER_DATABASE
-chmod u=rwx,g=rwxs,o= $SERVER_DATABASE
+chmod -R u=rwx,g=rwxs,o= $SERVER_DATABASE
 
 # 6. create the boss user/vhost etc if we have rabbitmqctl
 
@@ -110,7 +110,7 @@ fi
 
 %postun
 #don't do anything in case of upgrade
-if [ ! $1 == 1 ] ; then
+if [ ! $1 -eq 1 ] ; then
 
     if [ -e /usr/sbin/rabbitmqctl ]; then
       echo "Removing boss exchange/user from RabbitMQ"
