@@ -57,6 +57,7 @@ fi
 test -d $SERVER_HOME || mkdir -p $SERVER_HOME
 test -d $SERVER_DATABASE || mkdir -p $SERVER_DATABASE
 test -d $SERVER_LOGDIR || mkdir -p $SERVER_LOGDIR
+
 # 3. create user if not existing
 if ! getent passwd | grep -q "^$SERVER_USER:"; then
     echo -n "Adding system user $SERVER_USER.."
@@ -77,7 +78,7 @@ chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
 chmod u=rwx,g=rxs,o= $SERVER_LOGDIR
 
 chown -R $SERVER_USER:$SERVER_GROUP $SERVER_DATABASE
-chmod u=rwx,g=rxs,o= $SERVER_DATABASE
+chmod u=rwx,g=rwxs,o= $SERVER_DATABASE
 
 # 6. create the boss user/vhost etc if we have rabbitmqctl
 
