@@ -75,7 +75,7 @@ case "$1" in
 	if ! dpkg-statoverride --list $SERVER_DATABASE >/dev/null
 	then
             chown -R $SERVER_USER:$SERVER_GROUP $SERVER_DATABASE
-            chmod u=rwx,g=rxs,o= $SERVER_DATABASE
+            chmod u=rwx,g=rwxs,o= $SERVER_DATABASE
 	fi
 
 	# 6. create the boss user/vhost etc if we have rabbitmqctl
