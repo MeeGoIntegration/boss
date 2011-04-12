@@ -1,3 +1,13 @@
+boss (0.4-17) unstable; urgency=low
+
+  * Use /etc/default or sysconfig settings  in run/log scripts
+  * Correct the SERVER_DATABASE value - and use it
+  * Allow anyone in the boss group to update the DB
+  * From JF Ding : obs plugin: do not crash if failed to connect mq server
+  * sync spec and debian packaging
+
+ -- David Greaves <david@dgreaves.com>  Tue, 12 Apr 2011 16:45:11 +0100
+
 boss (0.4-16) unstable; urgency=low
 
   * Ensure the HOME env is set in 'run' to prevent ruby-inline errors
