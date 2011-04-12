@@ -1,3 +1,9 @@
+boss (0.4-18) unstable; urgency=low
+
+  * Make the DB group writeable but no world read
+
+ -- David Greaves <david@dgreaves.com>  Tue, 12 Apr 2011 17:07:57 +0100
+
 boss (0.4-17) unstable; urgency=low
 
   * Use /etc/default or sysconfig settings  in run/log scripts
