@@ -57,7 +57,7 @@ class BOSSRegistrar
   end
 end
 
-$engine.register_participant 'boss_register', BOSSRegistrar
+$engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
 
 # All setup... wait for a shutdown
