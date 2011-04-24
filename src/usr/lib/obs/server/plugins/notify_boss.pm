@@ -36,6 +36,13 @@ use Data::Dumper;
 
 use strict;
 
+# obsEvent FORMAT indicates the event structure to participants
+our $FORMAT = "2";
+#
+# introduce 'obsEvent:format'. If not present, format=1
+# add non-concatenated type into obsEvent:label/obsEvent:source values
+# mark 'obsEvent:type' as deprecated.
+
 sub new {
   my $self = {};
   bless $self, shift;
@@ -49,12 +56,17 @@ sub notify() {
   my ($self, $type, $paramRef ) = @_;
 
   $type = "UNKNOWN" unless $type;
-  my $prefix = $BSConfig::notification_namespace || "OBS";
-  $type =  "${prefix}_$type";
+  my $namespace = $BSConfig::notification_namespace || "OBS";
+  my $extended_type =  "${namespace}_$type";
 
   if ($paramRef) {
-    $paramRef->{'type'} = $type;
+    $paramRef->{'format'} = $FORMAT;
+    $paramRef->{'label'} = $type;
+    $paramRef->{'namespace'} = $namespace;
     $paramRef->{'time'} = time();
+# deprecated :
+    $paramRef->{'type'} = $extended_type;
+
     my $mq = Net::RabbitMQ->new();
     eval {
         $mq->connect($BSConfig::BOSS_host, { user => $BSConfig::BOSS_user,
