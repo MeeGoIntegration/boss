@@ -1,6 +1,6 @@
 Name: boss
-Version: 0.4
-Release:15%{?dist}
+Version: 0.5.0
+Release:1%{?dist}
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
 License: GPL2

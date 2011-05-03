@@ -1,3 +1,10 @@
+boss (0.5.0-1) unstable; urgency=low
+
+  * New version numbering
+  * Change the obsEvent format to add new attributes (backward compatible)
+
+ -- David Greaves <david@dgreaves.com>  Wed, 04 May 2011 00:47:46 +0100
+
 boss (0.4-18) unstable; urgency=low
 
   * Make the DB group writeable but no world read
