@@ -2,12 +2,14 @@
 
 require 'rubygems'
 
+# The json backend must be specified before anything loads rufus/json
+# This odd yajl require is for the semi-broken packaging by David
+require 'yajl/json_gem'
+
 require 'ruote'
 require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
 
-# Particularly useful for JSON.pretty_generate workitem.to_h
-require 'yajl/json_gem'
 
 require 'mq'
 

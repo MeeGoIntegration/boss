@@ -1,3 +1,9 @@
+boss (0.5.1-1) unstable; urgency=low
+
+  * Change the require order to force a yajl/json backend
+
+ -- David Greaves <david@dgreaves.com>  Thu, 05 May 2011 19:21:45 +0100
+
 boss (0.5.0-1) unstable; urgency=low
 
   * New version numbering
