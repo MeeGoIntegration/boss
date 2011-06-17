@@ -59,7 +59,20 @@ class BOSSRegistrar
   end
 end
 
+class BOSSUnRegistrar
+  include Ruote::LocalParticipant
+  def consume(workitem)
+    puts "Unregister an existing participant :", workitem.fields["name"]
+    puts "using queue ", workitem.fields["queue"]
+    $engine.unregister_participant(workitem.fields["name"],
+                                 RuoteAMQP::ParticipantProxy,
+                                 :queue => workitem.fields["queue"])
+    reply_to_engine(workitem)
+  end
+end
+
 $engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+$engine.unregister_participant 'boss_unregister', BOSSRegistrar
 
 
 # All setup... wait for a shutdown
