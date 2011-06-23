@@ -67,6 +67,7 @@ end
 
 
 $engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+$engine.unregister_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
 
 # All setup... wait for a shutdown
