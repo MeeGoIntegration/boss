@@ -1,3 +1,9 @@
+boss (0.5.2) unstable; urgency=low
+
+  * add unregister participant
+
+ -- Ramez Hanna <rhanna@informatiq.org>  Fri, 15 Jul 2011 11:09:23 +0300
+
 boss (0.5.1-1) unstable; urgency=low
 
   * Change the require order to force a yajl/json backend
