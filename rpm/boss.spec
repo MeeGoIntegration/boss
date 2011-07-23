@@ -160,8 +160,9 @@ This BOSS package configures the OBS servers to connect to the BOSS engine.
 %postun -n boss-obs-plugin
 
 %changelog
-* Fri Jul 15 2011 Ramez Hanna <rhanna@informatiq.org> - 0..5.2
-- add unregister participant
+* Fri Jul 15 2011 Ramez Hanna <rhanna@informatiq.org> - 0.6.0
+- add :action => 'unregister' to boss_register participant
+- New API : bump API version
 * Mon Aug 30 2010 David Greaves <david@dgreaves.com> - 0.3
 - Add obs-plugin
 * Sun Jul 25 2010 David Greaves <david@dgreaves.com> - 0.2
