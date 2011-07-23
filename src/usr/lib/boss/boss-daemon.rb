@@ -46,20 +46,25 @@ end
 RuoteAMQP::Receiver.new( $engine, :launchitems => true )
 
 # A simple LocalParticipant to handle registering a new AMQP Participant
+#
+# fields["name"] : the participant name to be registered
+# fields["queue"] : the corresponding amqp queue
+#
+# boss_register [:action => 'unregister']
+#
 class BOSSRegistrar
   include Ruote::LocalParticipant
   def consume(workitem)
-    puts "Register a new participant :", workitem.fields["name"]
-    puts "using queue ", workitem.fields["queue"]
-    puts "action", workitem.fields["action"]
-    if workitem.fields["action"] == "register"
-        $engine.register_participant(workitem.fields["name"],
-                                 RuoteAMQP::ParticipantProxy,
-                                 :queue => workitem.fields["queue"],
-                                 :position => -2 )
-    elsif workitem.fields["action"] == "unregister"
-        puts "UnRegister a new participant :", workitem.fields["name"]
-        $engine.unregister_participant(workitem.fields["name"])
+    if workitem.params["action"] == "unregister"
+      puts "UnRegister participant :", workitem.fields["name"]
+      $engine.unregister_participant(workitem.fields["name"])
+    else
+      puts "Register participant :", workitem.fields["name"]
+      puts "using queue ", workitem.fields["queue"]
+      $engine.register_participant(workitem.fields["name"],
+                                   RuoteAMQP::ParticipantProxy,
+                                   :queue => workitem.fields["queue"],
+                                   :position => -2 )
     end
     reply_to_engine(workitem)
   end
