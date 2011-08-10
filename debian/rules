@@ -11,11 +11,3 @@ export DH_VERBOSE=1
 
 %:
 	dh $@
-
-override_dh_auto_install:
-	cp -a src/* debian/boss/
-	mkdir -p debian/boss/var/log/boss
-	rm debian/boss/usr/lib/obs/server/plugins/notify_boss.pm
-	rmdir debian/boss/usr/lib/obs/server/plugins
-	rmdir debian/boss/usr/lib/obs/server
-	rmdir debian/boss/usr/lib/obs
