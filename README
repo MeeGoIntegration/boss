@@ -1,8 +1,27 @@
 BOSS - Build Orchestration Supervision System
 =============================================
 
-BOSS (nee Hadron) sits at the core of the build ecosystem and handles
+BOSS sits at the core of the build ecosystem and handles
 workflow automation.
+
+Currently the boss source package produces one binary (boss) under Debian
+and two binaries (boss and boss-plugin-obs) under OpenSUSE.
+
+The binary package boss contains the BOSS deamon which is just a ruby
+script (boss-daemon.rb) daemonized with deamontools (http://cr.yp.to/daemontools.html).
+The script does two things:
+ 1. it creates a ruote worker listening to an AMQP server for incoming
+    processes to work on;
+ 2. it registers one participant local to the worker which is to
+    register/unregister other participants mentioned in the workitems
+    the participant handles.
+
+The binary package boss-plugin-obs contains one plugin for OBS. This
+plugin makes communication between OBS and BOSS possible. It consumes
+OBS events and translates some of them to BOSS. Particularly it
+fires up ruote processes handled by the route worker boss-daemon.rb.
+
+The text below needs editing.
 
 This project is structured as follows
 
