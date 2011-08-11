@@ -143,7 +143,6 @@ rm -rf %{buildroot}
 /etc/init.d/boss
 /etc/sysconfig/boss
 %config(noreplace) /etc/sysconfig/boss
-%attr(755,boss,boss) /var/spool/boss/
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
