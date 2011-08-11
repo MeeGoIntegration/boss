@@ -1,3 +1,11 @@
+boss (0.6.1-1) maverick; urgency=low
+
+  * Get rid of lintian warnings
+  * Simplify debian packaging
+  * Add package description to README
+
+ -- Dmitry Rozhkov <dmitry.rozhkov@nokia.com>  Wed, 10 Aug 2011 17:02:08 +0300
+
 boss (0.6.0-1) unstable; urgency=low
 
   * add :action => 'unregister' to boss_register participant

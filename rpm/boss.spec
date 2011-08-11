@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.6.0
+Version: 0.6.1
 Release:1%{?dist}
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
@@ -160,6 +160,8 @@ This BOSS package configures the OBS servers to connect to the BOSS engine.
 %postun -n boss-obs-plugin
 
 %changelog
+* Wed Aug 10 2011 Dmitry Rozhkov <dmitry.rozhkov@nokia.com> - 0.6.1
+- Add package description to README
 * Fri Jul 15 2011 Ramez Hanna <rhanna@informatiq.org> - 0.6.0
 - add :action => 'unregister' to boss_register participant
 - New API : bump API version
