@@ -3,6 +3,8 @@ boss (0.6.1-1) maverick; urgency=low
   * Get rid of lintian warnings
   * Simplify debian packaging
   * Add package description to README
+  * Set dependency on latest rabbitmq to ensure rabbit has correct
+    initscript setup (David)
 
  -- Dmitry Rozhkov <dmitry.rozhkov@nokia.com>  Wed, 10 Aug 2011 17:02:08 +0300
 
