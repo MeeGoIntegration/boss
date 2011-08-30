@@ -12,8 +12,10 @@ engine = Ruote::Engine.new(
 statuses = engine.processes
 
 statuses.each { |p|
-  if (p.definition_name == ARGV[0]) then
-    puts "killing "+ p.definition_name
+  if (ARGV[0] == p.definition_name or
+      ARGV[0] == p.wfid or
+      ARGV[0] == p.position == ARGV[0]) then
+    puts "killing #{p.definition_name} : #{p.wfid}"
     engine.kill( p.wfid )
   end
 }
