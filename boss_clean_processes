@@ -1,0 +1,19 @@
+#!/bin/env ruby
+require 'rubygems'
+require 'yajl'
+require 'ruote'
+require 'ruote/storage/fs_storage'
+
+engine = Ruote::Engine.new(
+    # Use boss.config
+    Ruote::FsStorage.new('/var/spool/boss/boss_ruote_db/')
+)
+
+statuses = engine.processes
+
+statuses.each { |p|
+  if (p.definition_name == ARGV[0]) then
+    puts "killing "+ p.definition_name
+    engine.kill( p.wfid )
+  end
+}
