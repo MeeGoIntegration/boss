@@ -14,7 +14,7 @@ statuses = engine.processes
 statuses.each { |p|
   if (ARGV[0] == p.definition_name or
       ARGV[0] == p.wfid or
-      ARGV[0] == p.position == ARGV[0]) then
+      ARGV[0] == p.position) then
     puts "killing #{p.definition_name} : #{p.wfid}"
     engine.kill( p.wfid )
   end
