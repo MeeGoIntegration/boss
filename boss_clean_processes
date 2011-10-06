@@ -9,9 +9,10 @@ engine = Ruote::Engine.new(
     Ruote::FsStorage.new('/var/spool/boss/boss_ruote_db/')
 )
 
-statuses = engine.processes
 
-statuses.each { |p|
+engine.process_ids.each { |pid|
+  p = engine.process(pid)
+  puts "looking at #{p.definition_name}"
   if (ARGV[0] == p.definition_name or
       ARGV[0] == p.wfid or
       ARGV[0] == p.position) then

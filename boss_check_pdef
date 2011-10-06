@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'ruote'
 require 'ruote/reader'
+require 'yajl/json'
 
 print "Reading #{ARGV[0]}\n"
 
