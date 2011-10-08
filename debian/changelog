@@ -1,8 +1,14 @@
-boss (0.6.1-2) maverick; urgency=low
+boss (0.6.2-2) maverick; urgency=low
 
   * Remove version dependency  on rabbitmq-server
 
  -- Islam Amer <islam.amer@nokia.com>  Thu, 10 Nov 2011 10:52:33 +0200
+
+boss (0.6.2-1) unstable; urgency=low
+
+  * Install scripts
+
+ -- David Greaves <david@dgreaves.com>  Sat, 08 Oct 2011 14:45:55 +0000
 
 boss (0.6.1-1) maverick; urgency=low
 

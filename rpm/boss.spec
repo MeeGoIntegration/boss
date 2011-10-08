@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.6.1
+Version: 0.6.2
 Release:1%{?dist}
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
@@ -131,18 +131,15 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc INSTALL README
-/usr/lib/boss/
-/usr/lib/boss
-/usr/lib/boss/boss-daemon.rb
-/var/lib/boss/
-/var/lib/boss
-/var/lib/boss/run
-/var/lib/boss/log
-/var/lib/boss/log/run
-/usr/sbin/rcboss
-/etc/init.d/boss
-/etc/sysconfig/boss
 %config(noreplace) /etc/sysconfig/boss
+/etc/init.d/boss
+/usr/bin/boss_check_pdef
+/usr/bin/boss_clean_processes
+/usr/lib/boss/boss-daemon.rb
+/usr/sbin/rcboss
+/var/adm/fillup-templates/sysconfig.boss
+/var/lib/boss/log/run
+/var/lib/boss/run
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
