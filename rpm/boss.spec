@@ -20,8 +20,8 @@ The BOSS package configures the servers used to connect BOSS participants.
 true
 
 %install
-rm -rf %{buildroot}/*
-cp -ra src/* %{buildroot}
+make DESTDIR=%{buildroot} install
+install -D -m 644 rpm/boss.sysconfig %{buildroot}/var/adm/fillup-templates/sysconfig.boss
 install -D -m 755 rpm/boss.init %{buildroot}/etc/init.d/boss
 install -d %{buildroot}/usr/sbin
 ln -s -f /etc/init.d/boss %{buildroot}/usr/sbin/rcboss
