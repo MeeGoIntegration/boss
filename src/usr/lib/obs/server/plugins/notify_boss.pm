@@ -54,6 +54,16 @@ sub new {
 
 sub notify() {
   my ($self, $type, $paramRef ) = @_;
+  our @BOSS;
+
+  if (! defined @BSConfig::BOSS) {
+      @BOSS =({host => $BSConfig::BOSS_host,
+	       user => $BSConfig::BOSS_user,
+	       passwd => $BSConfig::BOSS_passwd,
+	      });
+  } else {
+      @BOSS = @BSConfig::BOSS;
+  }
 
   $type = "UNKNOWN" unless $type;
   my $namespace = $BSConfig::notification_namespace || "OBS";
@@ -67,45 +77,46 @@ sub notify() {
 # deprecated :
     $paramRef->{'type'} = $extended_type;
 
-    my $mq = Net::RabbitMQ->new();
-    eval {
-        $mq->connect($BSConfig::BOSS_host, { user => $BSConfig::BOSS_user,
-					 password => $BSConfig::BOSS_passwd,
-					 vhost => "boss" });
-    };
-    if ($@) {
-      warn("BOSS Plugin: $@");
-      return;
-    }
+    for my $boss (@BOSS) {
+	my $mq = Net::RabbitMQ->new();
+	eval {
+	    $mq->connect($boss->{'host'}, { user => $boss->{'user'},
+					    password => $boss->{'passwd'},
+					    vhost => "boss" });
+	};
+	if ($@) {
+	    warn("BOSS Plugin: $@");
+	    return;
+	}
 
-    $mq->channel_open(1);
+	$mq->channel_open(1);
 
-    my $definition = <<EOS;
+	my $definition = <<EOS;
 Ruote.process_definition :name => 'OBS Raw Event' do
   obs_event
 end
 EOS
-    my $fields = {obsEvent => $paramRef};
-    my $msg={"definition" => $definition,
-	     "fields" => $fields};
-
-    my $body;
-    eval {
-      $body = encode_json($msg);
-    };
-    if ($@) {
-      print "\n#################################################################################\n";
-      print "Dumper\n";
-      print Dumper($msg);
-      print "\n#################################################################################\n";
-      print "JSON\n";
-      print $body;
-      warn "Error decoding event\n".Dumper($msg);
-    } else {
-      $mq->publish(1, "ruote_workitems", encode_json($msg), { exchange => '' });
+        my $fields = {obsEvent => $paramRef};
+	my $msg={"definition" => $definition,
+		 "fields" => $fields};
+	
+	my $body;
+	eval {
+	    $body = encode_json($msg);
+	};
+	if ($@) {
+	    print "\n#################################################################################\n";
+	    print "Dumper\n";
+	    print Dumper($msg);
+	    print "\n#################################################################################\n";
+	    print "JSON\n";
+	    print $body;
+	    warn "Error decoding event\n".Dumper($msg);
+	} else {
+	    $mq->publish(1, "ruote_workitems", encode_json($msg), { exchange => '' });
+	}
+	$mq->disconnect();
     }
-    $mq->disconnect();
   }
 }
-
 1;
