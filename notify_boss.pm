@@ -60,8 +60,8 @@ Ruote.process_definition :name => 'OBS Raw Event' do
 end
 EOS
   my $fields = {obsEvent => $evRef};
-  return {"definition" => $definition,
-	  "fields" => $fields};
+  return encode_json({"definition" => $definition,
+		      "fields" => $fields});
 }
 
 sub notify() {
@@ -88,28 +88,19 @@ sub notify() {
 					 vhost => "boss" });
     };
     if ($@) {
-      warn("BOSS Plugin: $@");
+      warn("BOSS notify() plugin: $@");
       return;
     }
 
     $mq->channel_open(1);
 
-    my $msg = event2ruote($evRef);
-
-    my $body;
     eval {
-      $body = encode_json($msg);
-    };
+      my $msg = event2ruote($evRef);
+    }
     if ($@) {
-      print "\n#################################################################################\n";
-      print "Dumper\n";
-      print Dumper($msg);
-      print "\n#################################################################################\n";
-      print "JSON\n";
-      print $body;
-      warn "Error decoding event\n".Dumper($msg);
+      warn "BOSS notify() plugin encountered an error:\n$@\nWhilst encoding event\n".Dumper($msg);
     } else {
-      $mq->publish(1, "ruote_workitems", encode_json($msg), { exchange => '' });
+      $mq->publish(1, "ruote_workitems", $msg, { exchange => '' });
     }
     $mq->disconnect();
   }
