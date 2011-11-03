@@ -59,6 +59,8 @@ sub notify() {
   my $namespace = $BSConfig::notification_namespace || "OBS";
   my $extended_type =  "${namespace}_$type";
 
+  # The $evRef uses structures defined in BSXML.pm
+  # Some values are added here.
   if ($evRef) {
     $evRef->{'format'} = $FORMAT;
     $evRef->{'label'} = $type;
