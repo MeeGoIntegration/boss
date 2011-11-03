@@ -103,28 +103,30 @@ sub notify() {
 # deprecated :
     $evRef->{'type'} = $extended_type;
 
-    my $mq = Net::RabbitMQ->new();
-    eval {
-        $mq->connect($BSConfig::BOSS_host, { user => $BSConfig::BOSS_user,
-					 password => $BSConfig::BOSS_passwd,
-					 vhost => "boss" });
-    };
-    if ($@) {
-      warn("BOSS notify() plugin: $@");
-      return;
-    }
+    for my $boss (@BOSS) {
+      my $mq = Net::RabbitMQ->new();
+      eval {
+        $mq->connect($boss->{'host'}, { user => $boss->{'user'},
+					password => $boss->{'passwd'},
+					vhost => "boss" });
+      };
+      if ($@) {
+	warn("BOSS notify() plugin: $@");
+	return;
+      }
 
-    $mq->channel_open(1);
+      $mq->channel_open(1);
 
-    eval {
-      my $msg = event2ruote($evRef);
+      eval {
+	my $msg = $boss->{'msgmaker'}->($evRef);
+      }
+	if ($@) {
+	  warn "BOSS notify() plugin encountered an error:\n$@\nWhilst encoding event\n".Dumper($msg);
+	} else {
+	  $mq->publish(1, $boss->{'key'}, $msg, { exchange => $boss->{'exchange'} });
+	}
+      $mq->disconnect();
     }
-    if ($@) {
-      warn "BOSS notify() plugin encountered an error:\n$@\nWhilst encoding event\n".Dumper($msg);
-    } else {
-      $mq->publish(1, "ruote_workitems", $msg, { exchange => '' });
-    }
-    $mq->disconnect();
   }
 }
 
