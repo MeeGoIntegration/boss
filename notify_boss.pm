@@ -21,7 +21,31 @@
 # Wrap events up into a BOSS workitem and launch a process to handle
 # the event. Analysis and logic is handled in the participant.
 #
-# BSConfig should define:
+# BSConfig should define a list of AMQP servers and key/exchange pairs:
+# our @BOSS = ({host => "boss", # A BOSS server
+#               user => "boss",
+#               passwd => "boss",
+#               key => "ruote_workitems",
+#               exchange => "", # The ruote default for now
+#               msg_maker => "event2ruote", # uses the boss format
+# #             vhost => "boss",  # Used for an AMQP 0.8 server
+#              },
+#              {host => "mq", # A plain consumer uses plain json
+#               user => "xxx",
+#               passwd => "yyy",
+#               key => "mail",
+#               exchange => "mail",
+#              },
+#              {host => "java", # A plain consumer uses plain json
+#               user => "xx",
+#               passwd => "yy",
+#               key => "org.suse.amqp.client",
+#               exchange => "mail",
+#               msg_maker => \&event2XML, # uses an XML format
+#              },
+#             );
+#
+# The following values are deprecated but still supported:
 #  BOSS_host   : hostname for server running BOSS AMQP
 #  BOSS_user   : AMQP username
 #  BOSS_passwd : AMQP password (cleartext)
