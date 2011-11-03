@@ -37,11 +37,13 @@ use Data::Dumper;
 use strict;
 
 # obsEvent FORMAT indicates the event structure to participants
-our $FORMAT = "2";
+our $FORMAT = "3";
 #
 # introduce 'obsEvent:format'. If not present, format=1
 # add non-concatenated type into obsEvent:label/obsEvent:source values
 # mark 'obsEvent:type' as deprecated.
+# format=3 removes 'type' and moves the 'extra' data values we inject
+# into a private _amqp node of the event
 
 # This is the BOSS plugin so we use BOSS defaults.
 our $Default_Exchange = '';
@@ -97,10 +99,10 @@ sub notify() {
   # The $evRef uses structures defined in BSXML.pm
   # Some values are added here.
   if ($evRef) {
-    $evRef->{'format'} = $FORMAT;
-    $evRef->{'label'} = $type;
-    $evRef->{'namespace'} = $namespace;
-    $evRef->{'time'} = time();
+    $evRef->{'_amqp'}->{'format'} = $FORMAT;
+    $evRef->{'_amqp'}->{'label'} = $type;
+    $evRef->{'_amqp'}->{'namespace'} = $namespace;
+    $evRef->{'_amqp'}->{'time'} = time();
 
     for my $boss (@BOSS) {
       my $mq = Net::RabbitMQ->new();
