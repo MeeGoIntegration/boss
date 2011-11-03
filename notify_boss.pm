@@ -53,19 +53,19 @@ sub new {
 }
 
 sub notify() {
-  my ($self, $type, $paramRef ) = @_;
+  my ($self, $type, $evRef ) = @_;
 
   $type = "UNKNOWN" unless $type;
   my $namespace = $BSConfig::notification_namespace || "OBS";
   my $extended_type =  "${namespace}_$type";
 
-  if ($paramRef) {
-    $paramRef->{'format'} = $FORMAT;
-    $paramRef->{'label'} = $type;
-    $paramRef->{'namespace'} = $namespace;
-    $paramRef->{'time'} = time();
+  if ($evRef) {
+    $evRef->{'format'} = $FORMAT;
+    $evRef->{'label'} = $type;
+    $evRef->{'namespace'} = $namespace;
+    $evRef->{'time'} = time();
 # deprecated :
-    $paramRef->{'type'} = $extended_type;
+    $evRef->{'type'} = $extended_type;
 
     my $mq = Net::RabbitMQ->new();
     eval {
@@ -85,7 +85,7 @@ Ruote.process_definition :name => 'OBS Raw Event' do
   obs_event
 end
 EOS
-    my $fields = {obsEvent => $paramRef};
+    my $fields = {obsEvent => $evRef};
     my $msg={"definition" => $definition,
 	     "fields" => $fields};
 
