@@ -52,6 +52,11 @@ sub new {
   return $self;
 }
 
+event2json() {
+  my ($evRef) = @_;
+  return encode_json($evRef);
+}
+
 event2ruote() {
   my ($evRef) = @_;
   my $definition = <<EOS;
