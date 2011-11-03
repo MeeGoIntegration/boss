@@ -43,10 +43,6 @@ our $FORMAT = "2";
 # add non-concatenated type into obsEvent:label/obsEvent:source values
 # mark 'obsEvent:type' as deprecated.
 
-# This is the BOSS plugin so we use BOSS defaults.
-our $Default_Exchange = '';
-our $Default_Key = 'ruote_workitems';
-
 sub new {
   my $self = {};
   bless $self, shift;
@@ -56,35 +52,28 @@ sub new {
   return $self;
 }
 
-event2json() {
-  my ($evRef) = @_;
-  return encode_json($evRef);
+sub event2json() {
+
 }
 
-event2ruote() {
-  my ($evRef) = @_;
-  my $definition = <<EOS;
-Ruote.process_definition :name => 'OBS Raw Event' do
-  obs_event
-end
-EOS
-  my $fields = {obsEvent => $evRef};
-  return encode_json({"definition" => $definition,
-		      "fields" => $fields});
+sub event2ruote() {
+
 }
 
 sub notify() {
-  my ($self, $type, $evRef ) = @_;
+  my ($self, $type, $paramRef ) = @_;
+
+  # Introduce a new BSConfig mechanism
+  our @BOSS;
 
   if (! defined @BSConfig::BOSS) {
-    # convert a 'legacy' config to the new format
-    @BOSS =({host => $BSConfig::BOSS_host,
-	     user => $BSConfig::BOSS_user,
-	     passwd => $BSConfig::BOSS_passwd,
-	     exchange => $Default_Exchange,
-	     key => $Default_Key,
-	     msgmaker => \&event2ruote,
-	    });
+      @BOSS =({host => $BSConfig::BOSS_host,
+               user => $BSConfig::BOSS_user,
+               passwd => $BSConfig::BOSS_passwd,
+	       msgmaker => &event2json, # An old 'BOSS' installation
+                                        # expects a ruote formatted
+                                        # message
+              });
   } else {
       @BOSS = @BSConfig::BOSS;
   }
@@ -93,15 +82,12 @@ sub notify() {
   my $namespace = $BSConfig::notification_namespace || "OBS";
   my $extended_type =  "${namespace}_$type";
 
-  # The $evRef uses structures defined in BSXML.pm
-  # Some values are added here.
-  if ($evRef) {
-    $evRef->{'format'} = $FORMAT;
-    $evRef->{'label'} = $type;
-    $evRef->{'namespace'} = $namespace;
-    $evRef->{'time'} = time();
-# deprecated :
-    $evRef->{'type'} = $extended_type;
+  # paramRef
+  if ($paramRef) {
+    $paramRef->{'format'} = $FORMAT;
+    $paramRef->{'label'} = $type;
+    $paramRef->{'namespace'} = $namespace;
+    $paramRef->{'time'} = time();
 
     my $mq = Net::RabbitMQ->new();
     eval {
@@ -110,19 +96,35 @@ sub notify() {
 					 vhost => "boss" });
     };
     if ($@) {
-      warn("BOSS notify() plugin: $@");
+      warn("BOSS Plugin: $@");
       return;
     }
 
     $mq->channel_open(1);
 
+    my $definition = <<EOS;
+Ruote.process_definition :name => 'OBS Raw Event' do
+  obs_event
+end
+EOS
+    my $fields = {obsEvent => $paramRef};
+    my $msg={"definition" => $definition,
+	     "fields" => $fields};
+
+    my $body;
     eval {
-      my $msg = event2ruote($evRef);
-    }
+      $body = encode_json($msg);
+    };
     if ($@) {
-      warn "BOSS notify() plugin encountered an error:\n$@\nWhilst encoding event\n".Dumper($msg);
+      print "\n#################################################################################\n";
+      print "Dumper\n";
+      print Dumper($msg);
+      print "\n#################################################################################\n";
+      print "JSON\n";
+      print $body;
+      warn "Error decoding event\n".Dumper($msg);
     } else {
-      $mq->publish(1, "ruote_workitems", $msg, { exchange => '' });
+      $mq->publish(1, "ruote_workitems", encode_json($msg), { exchange => '' });
     }
     $mq->disconnect();
   }

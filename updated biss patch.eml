@@ -1,0 +1,74 @@
+Return-Path: <ramez.hanna@nokia.com>
+Received: from elm.dgreaves.com (localhost [127.0.0.1])
+	 by elm (Cyrus v2.2.13-Debian-2.2.13-19) with LMTPA;
+	 Thu, 23 Jun 2011 13:14:18 +0100
+X-Sieve: CMU Sieve 2.2
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on elm.dgreaves.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.4 required=5.0 tests=AWL,BAYES_00,
+	FSL_HELO_NON_FQDN_1,HELO_LOCALHOST autolearn=no version=3.3.1
+X-Original-To: david@dgreaves.com
+Delivered-To: david@dgreaves.com
+Received: from mail.ukfsn.org [77.75.108.10]
+	by elm.dgreaves.com with POP3 (fetchmail-6.3.18 polling mail.ukfsn.org account dgreaves)
+	for <david@dgreaves.com> (single-drop); Thu, 23 Jun 2011 13:14:18 +0100 (BST)
+Received: from localhost (smtp-filter.ukfsn.org [192.168.54.205])
+	by mail.ukfsn.org (Postfix) with ESMTP id 60A22DEBC4
+	for <david@dgreaves.com>; Thu, 23 Jun 2011 13:11:20 +0100 (BST)
+X-DSPAM-Result: Innocent
+X-DSPAM-Confidence: 0.9963
+X-DSPAM-Probability: 0.0000
+X-DSPAM-Signature: 4e032d63181291790220571
+Received: from mail.ukfsn.org ([192.168.54.25])
+	by localhost (smtp-filter.ukfsn.org [192.168.54.205]) (amavisd-new, port 10024)
+	with ESMTP id 5RDorFbPZIhn for <david@dgreaves.com>;
+	Thu, 23 Jun 2011 13:11:14 +0100 (BST)
+Received: from mgw-da01.nokia.com (smtp.nokia.com [147.243.128.24])
+	by mail.ukfsn.org (Postfix) with ESMTP id 97029DEC41
+	for <david@dgreaves.com>; Thu, 23 Jun 2011 13:11:14 +0100 (BST)
+Received: from nokia.com (localhost [127.0.0.1])
+	by mgw-da01.nokia.com (Switch-3.4.4/Switch-3.4.3) with ESMTP id p5NCBCAs018389
+	for <david@dgreaves.com>; Thu, 23 Jun 2011 15:11:12 +0300
+Received: from [172.21.23.90] ([[172.21.23.90]]) by mgw-da01.nokia.com with RELAY id p5NCAwhn017926 ;
+          Thu, 23 Jun 2011 15:11:00 +0300
+Subject: updated biss patch
+From: Ramez Hanna <ramez.hanna@nokia.com>
+To: david@dgreaves.com, islam.amer@nokia.com
+Date: Thu, 23 Jun 2011 15:10:58 +0300
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.0.2 (3.0.2-2.fc15) 
+Content-Transfer-Encoding: 7bit
+Message-ID: <1308831059.28738.0.camel@hovercraft>
+Mime-Version: 1.0
+X-Nokia-AV: Clean
+
+diff --git a/src/usr/lib/boss/boss-daemon.rb
+b/src/usr/lib/boss/boss-daemon.rb
+index a4a343b..4a46c4c 100755
+--- a/src/usr/lib/boss/boss-daemon.rb
++++ b/src/usr/lib/boss/boss-daemon.rb
+@@ -51,15 +51,23 @@ class BOSSRegistrar
+   def consume(workitem)
+     puts "Register a new participant :", workitem.fields["name"]
+     puts "using queue ", workitem.fields["queue"]
+-    $engine.register_participant(workitem.fields["name"],
++    puts "action", workitem.fields["action"]
++    if workitem.fields["action"] == "register"
++        $engine.register_participant(workitem.fields["name"],
+                                  RuoteAMQP::ParticipantProxy,
+                                  :queue => workitem.fields["queue"],
+                                  :position => -2 )
++    elsif workitem.fields["action"] == "unregister"
++        puts "UnRegister a new participant :", workitem.fields["name"]
++        $engine.unregister_participant(workitem.fields["name"])
++    end
+     reply_to_engine(workitem)
+   end
+ end
+ 
++
+ $engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
++$engine.unregister_participant 'boss_register', BOSSRegistrar, :position => 'first'
+ 
+ 
+ # All setup... wait for a shutdown
