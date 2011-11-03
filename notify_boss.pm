@@ -93,7 +93,6 @@ sub notify() {
 
   $type = "UNKNOWN" unless $type;
   my $namespace = $BSConfig::notification_namespace || "OBS";
-  my $extended_type =  "${namespace}_$type";
 
   # The $evRef uses structures defined in BSXML.pm
   # Some values are added here.
@@ -102,8 +101,6 @@ sub notify() {
     $evRef->{'label'} = $type;
     $evRef->{'namespace'} = $namespace;
     $evRef->{'time'} = time();
-# deprecated :
-    $evRef->{'type'} = $extended_type;
 
     for my $boss (@BOSS) {
       my $mq = Net::RabbitMQ->new();
