@@ -46,6 +46,7 @@ our $FORMAT = "2";
 # This is the BOSS plugin so we use BOSS defaults.
 our $Default_Exchange = '';
 our $Default_Key = 'ruote_workitems';
+our $Default_Vhost = 'boss';
 
 sub new {
   my $self = {};
@@ -84,6 +85,7 @@ sub notify() {
 	     exchange => $Default_Exchange,
 	     key => $Default_Key,
 	     msgmaker => \&event2ruote,
+	     vhost => $Default_Vhost,
 	    });
   } else {
       @BOSS = @BSConfig::BOSS;
@@ -105,10 +107,15 @@ sub notify() {
 
     for my $boss (@BOSS) {
       my $mq = Net::RabbitMQ->new();
+      my %mq_options = { user => $boss->{'user'},
+			 password => $boss->{'passwd'},
+		       };
+      if (defined($boss->{'vhost'} )) {
+	$mq_options{'vhost'} = $boss->{'vhost'};
+      }
+
       eval {
-        $mq->connect($boss->{'host'}, { user => $boss->{'user'},
-					password => $boss->{'passwd'},
-					vhost => "boss" });
+        $mq->connect($boss->{'host'}, %mq_options );
       };
       if ($@) {
 	warn("BOSS notify() plugin: $@");
