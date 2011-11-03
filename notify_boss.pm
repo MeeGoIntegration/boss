@@ -80,6 +80,7 @@ sub notify() {
   my ($self, $type, $evRef ) = @_;
 
   if (! defined @BSConfig::BOSS) {
+    warn "Deprecated BSConfig::BOSS_host/user/passwd values used in BSConfig.pm";
     # convert a 'legacy' config to the new format
     @BOSS =({host => $BSConfig::BOSS_host,
 	     user => $BSConfig::BOSS_user,
