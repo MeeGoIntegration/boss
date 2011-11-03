@@ -52,6 +52,18 @@ sub new {
   return $self;
 }
 
+event2ruote() {
+  my ($evRef) = @_;
+  my $definition = <<EOS;
+Ruote.process_definition :name => 'OBS Raw Event' do
+  obs_event
+end
+EOS
+  my $fields = {obsEvent => $evRef};
+  return {"definition" => $definition,
+	  "fields" => $fields};
+}
+
 sub notify() {
   my ($self, $type, $evRef ) = @_;
 
@@ -82,14 +94,7 @@ sub notify() {
 
     $mq->channel_open(1);
 
-    my $definition = <<EOS;
-Ruote.process_definition :name => 'OBS Raw Event' do
-  obs_event
-end
-EOS
-    my $fields = {obsEvent => $evRef};
-    my $msg={"definition" => $definition,
-	     "fields" => $fields};
+    my $msg = event2ruote($evRef);
 
     my $body;
     eval {
