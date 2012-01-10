@@ -11,9 +11,6 @@ On that server, for the demos we'll need (as root or rabbitmq user):
  rabbitmqctl add_user ruote ruote
  rabbitmqctl set_permissions -p ruote-test ruote '.*' '.*' '.*'
 
-The demo refers to this amqp server as 'amqpvm' so put an entry in
-/etc/hosts to ensure that resolves correctly.
-
 Ruby
 ====
 

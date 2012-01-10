@@ -21,34 +21,6 @@ plugin makes communication between OBS and BOSS possible. It consumes
 OBS events and translates some of them to BOSS. Particularly it
 fires up ruote processes handled by the route worker boss-daemon.rb.
 
-The text below needs editing.
-
-This project is structured as follows
-
-   .
-   |-components   :  BOSS component proxies for subsystems
-   |-db		  :  holding area for demo and other fs databases
-   |-demo	  :  demo code
-   |-doc	  :  Documentation
-   |-integration  :  Code related to more generic integration (eg python)
-   |-play	  :  Scratch area (not in git)
-   |-ruote	  :  Git clones of related ruote projects (use get-git.sh to clone/pull)
-   |---daemon-kit
-   |---ruote
-   |---ruote-amqp
-   |---ruote-fluo
-   |---ruote-kit
-   |---ruote-web
-
-That's from
-  ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' 
-
-TODO
-
-Setup a demo with reasonable participants
-Invoke a workflow from a non-ruby system
-HOWTO Demo
-
 AMQP and RabbitMQ
 =================
 
@@ -99,9 +71,3 @@ ruote-flo
 =========
 Graphical view of a workflow.
 
-
-Decision tables
-
-Demonstrate:
-* amqp - remote participants
-* restart "engine" ?
