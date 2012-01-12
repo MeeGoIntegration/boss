@@ -26,7 +26,6 @@ AMQP.settings[:port] = Integer(amqp_port)
 AMQP.settings[:user] = user
 AMQP.settings[:pass] = pass
 AMQP.settings[:vhost] = vhost
-AMQP.settings[:insist] = false
 #AMQP.logging = true
 
 #test connection
@@ -62,12 +61,15 @@ if conf["boss"]["debug"] == "true"
     $engine.noisy = true
 end
 
-# We run under supervisor and it communicates via signals
-Signal.trap('SIGTERM') do 
+shutdown = proc {
   puts 'Shutdown gracefully'
   $engine.shutdown
-  puts 'Asked engine to stop'
-end
+}
+
+# We run under supervisor and it communicates via signals
+Signal.trap('SIGTERM', shutdown) 
+Signal.trap('SIGINT', shutdown) 
+
 
 # This spawns a thread which listens for amqp responses
 RuoteAMQP::Receiver.new( $engine, :launchitems => true )
@@ -108,5 +110,6 @@ $engine.join()
 puts "Engine stopped"
 
 # FIXME: RuoteAMQP is not shutting down nicely
-# RuoteAMQP.stop!
-# puts "AMQP stopped"
+#RuoteAMQP.stop!
+AMQP.stop
+puts "AMQP stopped"
