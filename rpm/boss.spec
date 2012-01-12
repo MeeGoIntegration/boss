@@ -9,7 +9,7 @@ Source0: boss_%{version}.orig.tar.gz
 BuildRoot: %{name}-root-%(%{__id_u} -n)
 
 BuildRequires: -post-build-checks -rpmlint-Factory
-Requires: rabbitmq-server >= 1.7.2, daemontools, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-tzinfo
+Requires: rabbitmq-server >= 1.7.2, python-boss-skynet, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-tzinfo
 %description
 The BOSS package configures the servers used to connect BOSS participants.
 
@@ -21,11 +21,6 @@ true
 
 %install
 make DESTDIR=%{buildroot} install
-install -D -m 644 rpm/boss.sysconfig %{buildroot}/var/adm/fillup-templates/sysconfig.boss
-install -D -m 755 rpm/boss.init %{buildroot}/etc/init.d/boss
-install -d %{buildroot}/usr/sbin
-ln -s -f /etc/init.d/boss %{buildroot}/usr/sbin/rcboss
-install -D -m 755 rpm/boss.sysconfig %{buildroot}/etc/sysconfig/boss
 
 %pre
 /usr/sbin/groupadd -r boss 2> /dev/null || :
@@ -43,8 +38,6 @@ SERVER_USER=boss
 SERVER_NAME="BOSS"
 SERVER_GROUP=boss
 SERVICE_DIR=/etc/service
-# and allow local overrides
-[ -f "/etc/sysconfig/boss" ] && . /etc/sysconfig/boss
 
 # create user to avoid running server as root
 # 1. create group if not existing
@@ -97,14 +90,6 @@ if [ -e /usr/sbin/rabbitmqctl ]; then
     rabbitmqctl add_user boss boss || true
     rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
 fi
-inittab_line="SN:2345:respawn:/usr/bin/svscan $SERVICE_DIR"
-
-[ ! -d $SERVICE_DIR ] && mkdir -p $SERVICE_DIR
-
-if ! grep "$inittab_line" /etc/inittab >/dev/null; then
-    echo "$inittab_line" >> /etc/inittab
-    init q
-fi
 
 %restart_on_update boss
 
@@ -116,11 +101,6 @@ if [ ! $1 -eq 1 ] ; then
       rabbitmqctl delete_vhost boss
       rabbitmqctl delete_user boss
     fi
-    # remove the svcscan from inittab
-    sed -i -e '/^SN:/d' /etc/inittab
-    init q
-    svc -dx /etc/service/* || :
-    svc -dx /etc/service/*/log || :
 fi
 
 %insserv_cleanup
@@ -131,15 +111,11 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc INSTALL README
-%config(noreplace) /etc/sysconfig/boss
-/etc/init.d/boss
+%config(noreplace) /etc/skynet/boss.conf
+%config(noreplace) /etc/supervisor/conf.d/boss.conf
 /usr/bin/boss_check_pdef
 /usr/bin/boss_clean_processes
-/usr/lib/boss/boss-daemon.rb
-/usr/sbin/rcboss
-/var/adm/fillup-templates/sysconfig.boss
-/var/lib/boss/log/run
-/var/lib/boss/run
+/usr/bin/boss
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
@@ -154,17 +130,4 @@ This BOSS package configures the OBS servers to connect to the BOSS engine.
 /usr/lib/obs/server/plugins/notify_boss.pm
 %post -n boss-obs-plugin
 %postun -n boss-obs-plugin
-
-%changelog
-* Wed Aug 10 2011 Dmitry Rozhkov <dmitry.rozhkov@nokia.com> - 0.6.1
-- Add package description to README
-* Fri Jul 15 2011 Ramez Hanna <rhanna@informatiq.org> - 0.6.0
-- add :action => 'unregister' to boss_register participant
-- New API : bump API version
-* Mon Aug 30 2010 David Greaves <david@dgreaves.com> - 0.3
-- Add obs-plugin
-* Sun Jul 25 2010 David Greaves <david@dgreaves.com> - 0.2
-- Add daemon-kit based engine
-* Thu Jul 22 2010 David Greaves <david@dgreaves.com> - 0.1
-- Initial minimal BOSS package
 

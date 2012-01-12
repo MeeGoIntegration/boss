@@ -31,8 +31,6 @@ case "$1" in
 	SERVER_USER=boss
 	SERVER_NAME="BOSS"
 	SERVER_GROUP=boss
-	# and allow local overrides
-	[ -f "/etc/default/boss" ] && . /etc/default/boss
 
         # create user to avoid running server as root
         # 1. create group if not existing

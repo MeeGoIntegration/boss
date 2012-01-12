@@ -1,0 +1,112 @@
+#!/usr/bin/ruby
+
+require 'rubygems'
+
+require 'inifile'
+require 'amqp'
+
+STDOUT.sync = true
+
+if ARGV[0].nil?
+    puts "No arguments provided. Please provide path to confiuration file."
+    exit 1
+end
+
+conf = IniFile.load("/etc/skynet/skynet.conf")
+conf = conf.merge(IniFile.load(ARGV[0]))
+
+amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
+user = conf["boss"]["amqp_user"] || "boss"
+pass = conf["boss"]["amqp_pwd"]  || "boss"
+vhost = conf["boss"]["amqp_vhost"] || "boss"
+
+
+AMQP.settings[:host] = amqp_host
+AMQP.settings[:port] = Integer(amqp_port)
+AMQP.settings[:user] = user
+AMQP.settings[:pass] = pass
+AMQP.settings[:vhost] = vhost
+AMQP.settings[:insist] = false
+#AMQP.logging = true
+
+#test connection
+begin
+    AMQP.start() do |connection|
+      puts "Connection opened ok"
+      AMQP.stop { EventMachine.stop }
+    end
+rescue AMQP::Error => e
+  puts "Failed to connect to AMQP server, error was :"
+  puts e.message
+  puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
+  puts "Run the following commands as root on the AMQP server :"
+  puts "/usr/sbin/rabbitmqctl status"
+  puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
+  puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
+  puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
+  exit 1
+end
+
+require 'yajl'
+require 'ruote'
+require 'ruote/storage/fs_storage'
+require 'ruote-amqp'
+
+$engine = Ruote::Engine.new(
+  Ruote::Worker.new(
+    Ruote::FsStorage.new(conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db")
+  )
+)
+
+if conf["boss"]["debug"] == "true"
+    $engine.noisy = true
+end
+
+# We run under supervisor and it communicates via signals
+Signal.trap('SIGTERM') do 
+  puts 'Shutdown gracefully'
+  $engine.shutdown
+  puts 'Asked engine to stop'
+end
+
+# This spawns a thread which listens for amqp responses
+RuoteAMQP::Receiver.new( $engine, :launchitems => true )
+
+# A simple LocalParticipant to handle registering a new AMQP Participant
+#
+# fields["name"] : the participant name to be registered
+# fields["queue"] : the corresponding amqp queue
+#
+# boss_register [:action => 'unregister']
+#
+class BOSSRegistrar
+  include Ruote::LocalParticipant
+  def consume(workitem)
+    if workitem.params["action"] == "unregister"
+      puts "UnRegister participant :", workitem.fields["name"]
+      $engine.unregister_participant(workitem.fields["name"])
+    else
+      puts "Register participant :", workitem.fields["name"]
+      puts "using queue ", workitem.fields["queue"]
+      $engine.register_participant(workitem.fields["name"],
+                                   RuoteAMQP::ParticipantProxy,
+                                   :queue => workitem.fields["queue"],
+                                   :position => -2 )
+    end
+    reply_to_engine(workitem)
+  end
+end
+
+
+$engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+
+
+# All setup... wait for a shutdown
+puts "Engine running"
+
+$engine.join()
+puts "Engine stopped"
+
+# FIXME: RuoteAMQP is not shutting down nicely
+# RuoteAMQP.stop!
+# puts "AMQP stopped"
