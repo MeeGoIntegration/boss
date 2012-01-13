@@ -26,7 +26,6 @@ case "$1" in
      
         # Sane defaults:
 	SERVER_HOME=/var/lib/boss
-	SERVER_LOGDIR=/var/log/boss
 	SERVER_DATABASE=/var/spool/boss
 	SERVER_USER=boss
 	SERVER_NAME="BOSS"
@@ -41,7 +40,6 @@ case "$1" in
 	fi
         # 2. create dirs if not existing
 	test -d $SERVER_HOME || mkdir $SERVER_HOME
-	test -d $SERVER_LOGDIR || mkdir $SERVER_LOGDIR
 	test -d $SERVER_DATABASE || mkdir $SERVER_DATABASE
         # 3. create user if not existing
         if ! getent passwd | grep -q "^$SERVER_USER:"; then
@@ -64,11 +62,6 @@ case "$1" in
 	then
             chown -R $SERVER_USER:$SERVER_GROUP $SERVER_HOME
             chmod u=rwx,g=rxs,o= $SERVER_HOME
-	fi
-	if ! dpkg-statoverride --list $SERVER_LOGDIR >/dev/null
-	then
-            chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
-            chmod u=rwx,g=rxs,o= $SERVER_LOGDIR
 	fi
 	if ! dpkg-statoverride --list $SERVER_DATABASE >/dev/null
 	then

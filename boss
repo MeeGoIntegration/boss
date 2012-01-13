@@ -19,7 +19,8 @@ amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split("
 user = conf["boss"]["amqp_user"] || "boss"
 pass = conf["boss"]["amqp_pwd"]  || "boss"
 vhost = conf["boss"]["amqp_vhost"] || "boss"
-
+db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
+#db_type
 
 AMQP.settings[:host] = amqp_host
 AMQP.settings[:port] = Integer(amqp_port)
@@ -39,7 +40,6 @@ rescue AMQP::Error => e
   puts e.message
   puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
   puts "Run the following commands as root on the AMQP server :"
-  puts "/usr/sbin/rabbitmqctl status"
   puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
   puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
   puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
@@ -53,7 +53,7 @@ require 'ruote-amqp'
 
 $engine = Ruote::Engine.new(
   Ruote::Worker.new(
-    Ruote::FsStorage.new(conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db")
+    Ruote::FsStorage.new(db_path)
   )
 )
 
@@ -113,3 +113,5 @@ puts "Engine stopped"
 #RuoteAMQP.stop!
 AMQP.stop
 puts "AMQP stopped"
+
+exit 0

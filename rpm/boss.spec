@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.6.2
+Version: 0.7.0
 Release:1%{?dist}
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
@@ -9,7 +9,7 @@ Source0: boss_%{version}.orig.tar.gz
 BuildRoot: %{name}-root-%(%{__id_u} -n)
 
 BuildRequires: -post-build-checks -rpmlint-Factory
-Requires: rabbitmq-server >= 1.7.2, python-boss-skynet, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-tzinfo
+Requires: rabbitmq-server >= 1.7.2, python-boss-skynet, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-inifile, rubygem-amqp
 %description
 The BOSS package configures the servers used to connect BOSS participants.
 
@@ -116,6 +116,20 @@ rm -rf %{buildroot}
 /usr/bin/boss_check_pdef
 /usr/bin/boss_clean_processes
 /usr/bin/boss
+
+%package -n boss-viewer
+Summary: Wrapper around ruote-kit
+Group: Productivity/Networking/Web/Utilities
+Requires: rubygem-ruote-kit, boss
+
+%description -n boss-viewer
+A web based viewer to provide an overview of BOSS processes
+
+%files -n boss-viewer
+%defattr(-,root,root,-)
+/usr/bin/boss-viewer
+%config(noreplace) /etc/supervisor/conf.d/boss-viewer.conf
+
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System

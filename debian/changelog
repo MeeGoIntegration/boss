@@ -1,3 +1,10 @@
+boss (0.7.0-1) maverick; urgency=low
+
+  * Move under supervisor skynet control
+  * Merge boss-viewer into source tree
+
+ -- Islam Amer <islam.amer@nokia.com>  Sat, 14 Jan 2012 22:28:36 +0200
+
 boss (0.6.2-2) maverick; urgency=low
 
   * Remove version dependency  on rabbitmq-server

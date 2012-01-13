@@ -9,7 +9,13 @@ Homepage: http://wiki.meego.com/BOSS
 
 Package: boss
 Architecture: all
-Depends: ${misc:Depends}, rabbitmq-server, python-boss-skynet, ruby, rubygems, ruby-ruote-amqp
+Depends: ${misc:Depends}, ruby | ruby-interpreter, rabbitmq-server, python-boss-skynet, ruby-amqp, ruby-ruote-amqp, ruby-inifile
 Description: MeeGo Build Orchestration Server System
  The BOSS package configures the servers used to connect BOSS participants.
+
+Package: boss-viewer
+Architecture: all
+Depends: ${misc:Depends}, ruby-ruote-kit (>= 2.2.1.0), boss
+Description: A web based viewer to provide an overview of BOSS processes
+ A wrapper around ruote-kit
 
