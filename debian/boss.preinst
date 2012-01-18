@@ -1,0 +1,27 @@
+#! /bin/sh
+
+set -e
+
+STOP_BEFORE="0.7.0"
+
+if [ "$1" = "upgrade" ]; then
+  if [ "$2" ]; then
+    if dpkg --compare-versions "$2" "<<" "$STOP_BEFORE"; then
+      # Upgrade from daemontools based version
+      SERVICE_DIR=/etc/service
+      SERVER_HOME=/var/lib/boss
+      SNAME=boss
+      [ -f /etc/default/boss ] && . /etc/default/boss
+        echo "stopping daemontools controlled boss ..."
+        if [ -e ${SERVICE_DIR}/${SNAME} ]; then
+            rm ${SERVICE_DIR}/${SNAME}
+        fi
+        # Shut down the supervise and log too
+        svc -dx ${SERVER_HOME}
+        sleep 1
+        svc -dx ${SERVER_HOME}/log
+    fi
+  fi 
+fi
+
+#DEBHELPER#

@@ -9,7 +9,7 @@ Source0: boss_%{version}.orig.tar.gz
 BuildRoot: %{name}-root-%(%{__id_u} -n)
 
 BuildRequires: -post-build-checks -rpmlint-Factory
-Requires: rabbitmq-server >= 1.7.2, python-boss-skynet, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-inifile, rubygem-amqp
+Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, rubygem-ruote > 2.1.10, rubygem-ruote-amqp, rubygem-yajl-ruby, rubygem-inifile, rubygem-amqp >= 0.9.0
 %description
 The BOSS package configures the servers used to connect BOSS participants.
 
@@ -21,10 +21,6 @@ true
 
 %install
 make DESTDIR=%{buildroot} install
-
-%pre
-/usr/sbin/groupadd -r boss 2> /dev/null || :
-/usr/sbin/useradd -r -o -s /bin/false -c "User for BOSS" -d /var/spool/boss -g boss boss 2> /dev/null || :
 
 %post
 #!/bin/bash
@@ -90,8 +86,30 @@ if [ -e /usr/sbin/rabbitmqctl ]; then
     rabbitmqctl add_user boss boss || true
     rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
 fi
+#7. tell supervisor to pickup config and code changes
+skynet apply || true
+skynet reload boss || true
 
-%restart_on_update boss
+
+%pre
+/usr/sbin/groupadd -r boss 2> /dev/null || :
+/usr/sbin/useradd -r -o -s /bin/false -c "User for BOSS" -d /var/spool/boss -g boss boss 2> /dev/null || :
+SERVICE_DIR=/etc/service
+SERVER_HOME=/var/lib/boss
+SNAME=boss
+[ -f /etc/sysconfig/boss ] && . /etc/sysconfig/boss
+
+if [ -e ${SERVICE_DIR}/${SNAME} ]; then
+    rm ${SERVICE_DIR}/${SNAME}
+fi
+if /usr/bin/svok $SERVER_HOME; then
+  # Upgrade from daemontools based version
+    echo "stopping daemontools controlled boss-viewer ..."
+    # Shut down the supervise and log too
+    svc -dx ${SERVER_HOME}
+    sleep 1
+    svc -dx ${SERVER_HOME}/log
+fi
 
 %postun
 #don't do anything in case of upgrade
@@ -125,11 +143,36 @@ Requires: rubygem-ruote-kit, boss
 %description -n boss-viewer
 A web based viewer to provide an overview of BOSS processes
 
+%pre -n boss-viewer
+
+SERVICE_DIR=/etc/service
+VIEWER_HOME=/var/lib/boss-viewer
+VIEWER_DAEMON_DIR=/var/lib/boss-viewer/boss-viewer
+SNAME=boss-viewer
+[ -f /etc/sysconfig/boss-viewer ] && . /etc/sysconfig/boss-viewer
+
+if [ -e ${SERVICE_DIR}/${SNAME} ]; then
+    rm ${SERVICE_DIR}/${SNAME}
+fi
+if /usr/bin/svok $VIEWER_DAEMON_DIR; then
+  # Upgrade from daemontools based version
+    echo "stopping daemontools controlled boss-viewer ..."
+
+    # Shut down the supervise and log too
+    svc -dx ${VIEWER_DAEMON_DIR}
+    sleep 1
+    svc -dx ${VIEWER_DAEMON_DIR}/log
+fi
+
 %files -n boss-viewer
 %defattr(-,root,root,-)
 /usr/bin/boss-viewer
 %config(noreplace) /etc/supervisor/conf.d/boss-viewer.conf
 
+%post -n boss-viewer
+#7. tell supervisor to pickup config and code changes
+skynet apply || true
+skynet reload boss || true
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System

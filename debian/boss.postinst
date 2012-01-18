@@ -76,6 +76,10 @@ case "$1" in
 	    rabbitmqctl add_user boss boss || true
 	    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
 	fi
+
+    #7. tell supervisor to pickup config and code changes
+    skynet apply || true
+    skynet reload boss || true
 	;;
     abort-upgrade|abort-remove|abort-deconfigure)
 	;;
