@@ -32,8 +32,10 @@ AMQP.settings[:vhost] = vhost
 #test connection
 begin
     AMQP.start() do |connection|
-      puts "Connection opened ok"
-      AMQP.stop { EventMachine.stop }
+      AMQP::Channel.new(connection) do |channel|
+        puts "Connection opened ok"
+        AMQP.stop { EventMachine.stop }
+      end
     end
 rescue AMQP::Error => e
   puts "Failed to connect to AMQP server, error was :"
