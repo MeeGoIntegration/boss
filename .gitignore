@@ -7,3 +7,4 @@ play
 *.dsc
 *.changes
 *.rpm
+.bundle

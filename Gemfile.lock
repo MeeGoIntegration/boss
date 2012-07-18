@@ -1,0 +1,83 @@
+GIT
+  remote: git@github.com:MeeGoIntegration/amqp.git
+  revision: f6f0ef941b1e2572da4cb8e21f0de8e07fa9dabe
+  tag: 0.7.5
+  specs:
+    amqp (0.7.5)
+      eventmachine
+
+GIT
+  remote: git@github.com:MeeGoIntegration/ruote-amqp.git
+  revision: 742ed0067dd4e0ed80ab02acf5e482438734f46f
+  branch: mer-v2.2.1
+  specs:
+    ruote-amqp (2.2.0.1)
+      amqp (~> 0.7.0)
+      ruote (>= 2.2.1)
+
+GIT
+  remote: git@github.com:MeeGoIntegration/ruote.git
+  revision: 0722b658c59a4ad246707c49eb76b4eca84b3dd3
+  branch: master
+  specs:
+    ruote (2.2.1)
+      parslet (= 1.2.3)
+      rufus-cloche (>= 1.0.1)
+      rufus-dollar (>= 1.0.4)
+      rufus-json (>= 1.0.1)
+      rufus-mnemo (>= 1.2.2)
+      rufus-scheduler (>= 2.0.13)
+      rufus-treechecker (>= 1.0.8)
+      sourcify (= 0.5.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    blankslate (2.1.2.4)
+    diff-lcs (1.1.3)
+    eventmachine (0.12.10)
+    file-tail (1.0.10)
+      tins (~> 0.4.3)
+    inifile (1.1.0)
+    parslet (1.2.3)
+      blankslate (~> 2.0)
+    rspec (2.11.0)
+      rspec-core (~> 2.11.0)
+      rspec-expectations (~> 2.11.0)
+      rspec-mocks (~> 2.11.0)
+    rspec-core (2.11.0)
+    rspec-expectations (2.11.1)
+      diff-lcs (~> 1.1.3)
+    rspec-mocks (2.11.1)
+    ruby2ruby (1.3.1)
+      ruby_parser (~> 2.0)
+      sexp_processor (~> 3.0)
+    ruby_parser (2.3.1)
+      sexp_processor (~> 3.0)
+    rufus-cloche (1.0.2)
+      rufus-json (>= 1.0.1)
+    rufus-dollar (1.0.4)
+    rufus-json (1.0.1)
+    rufus-mnemo (1.2.3)
+    rufus-scheduler (2.0.17)
+      tzinfo (>= 0.3.23)
+    rufus-treechecker (1.0.8)
+      ruby_parser (>= 2.0.5)
+    sexp_processor (3.2.0)
+    sourcify (0.5.0)
+      file-tail (>= 1.0.5)
+      ruby2ruby (>= 1.2.5)
+      ruby_parser (>= 2.0.5)
+      sexp_processor (>= 3.0.5)
+    tins (0.4.3)
+    tzinfo (0.3.33)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  amqp!
+  inifile
+  rspec
+  ruote!
+  ruote-amqp!
