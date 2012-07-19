@@ -5,6 +5,7 @@
 # spawn a worker thread and runs inside rack
 # load json backend
 require 'rubygems'
+require 'bundler/setup'
 require 'yajl'    # fastest, but uses a c module
 # require 'json_pure'  # should work everywhere
 
