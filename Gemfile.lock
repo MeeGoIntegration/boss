@@ -1,18 +1,20 @@
 GIT
   remote: git@github.com:MeeGoIntegration/amqp.git
-  revision: f6f0ef941b1e2572da4cb8e21f0de8e07fa9dabe
-  tag: 0.7.5
+  revision: 2f1d92abfac8c1a2446c2c9ec71007795fe1054e
+  branch: 1.0.0.pre2
   specs:
-    amqp (0.7.5)
+    amqp (1.0.0.pre2)
+      amq-client (~> 1.0.0.pre2)
+      amq-protocol (~> 1.0.0.pre6)
       eventmachine
 
 GIT
   remote: git@github.com:MeeGoIntegration/ruote-amqp.git
-  revision: 742ed0067dd4e0ed80ab02acf5e482438734f46f
+  revision: ead136c0dcfc6dafa63e51956003aaba569eb96f
   branch: mer-v2.2.1
   specs:
     ruote-amqp (2.2.0.1)
-      amqp (~> 0.7.0)
+      amqp (>= 0.7.0)
       ruote (>= 2.2.1)
 
 GIT
@@ -33,14 +35,20 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    blankslate (2.1.2.4)
+    amq-client (1.0.0.pre2)
+      amq-protocol (>= 0.9.4)
+      eventmachine
+    amq-protocol (1.0.0.pre6)
+    blankslate (2.1.2.3)
     diff-lcs (1.1.3)
     eventmachine (0.12.10)
     file-tail (1.0.10)
       tins (~> 0.4.3)
+    haml (3.0.25)
     inifile (1.1.0)
     parslet (1.2.3)
       blankslate (~> 2.0)
+    rack (1.4.1)
     rspec (2.11.0)
       rspec-core (~> 2.11.0)
       rspec-expectations (~> 2.11.0)
@@ -57,13 +65,23 @@ GEM
     rufus-cloche (1.0.2)
       rufus-json (>= 1.0.1)
     rufus-dollar (1.0.4)
-    rufus-json (1.0.1)
+    rufus-json (1.0.2)
     rufus-mnemo (1.2.3)
     rufus-scheduler (2.0.17)
       tzinfo (>= 0.3.23)
     rufus-treechecker (1.0.8)
       ruby_parser (>= 2.0.5)
+    ruote-kit (2.2.0.3)
+      haml (= 3.0.25)
+      rufus-json (>= 0.2.5)
+      ruote (>= 2.2.0)
+      sinatra (= 1.0)
+      sinatra-respond_to (= 0.5.0)
     sexp_processor (3.2.0)
+    sinatra (1.0)
+      rack (>= 1.0)
+    sinatra-respond_to (0.5.0)
+      sinatra (~> 1.0)
     sourcify (0.5.0)
       file-tail (>= 1.0.5)
       ruby2ruby (>= 1.2.5)
@@ -71,6 +89,7 @@ GEM
       sexp_processor (>= 3.0.5)
     tins (0.4.3)
     tzinfo (0.3.33)
+    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
@@ -81,3 +100,5 @@ DEPENDENCIES
   rspec
   ruote!
   ruote-amqp!
+  ruote-kit
+  yajl-ruby
