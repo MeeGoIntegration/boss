@@ -5,8 +5,7 @@ Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
 License: GPL2
 URL: http://wiki.meego.com/BOSS
-Source0: boss_%{version}.orig.tar.gz
-BuildRoot: %{name}-root-%(%{__id_u} -n)
+Source0: boss-%{version}.tar.bz2
 
 BuildRequires: -post-build-checks -rpmlint-Factory
 #Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle
@@ -15,7 +14,7 @@ Requires: python-boss-skynet > 0.6.0, boss-bundle
 The BOSS package configures the servers used to connect BOSS participants.
 
 %prep
-%setup -q
+%setup -q -n src/
 
 %build
 true
