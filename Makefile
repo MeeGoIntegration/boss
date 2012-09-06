@@ -30,5 +30,5 @@ install-to-bundler: $(DESTDIR)$(BUNDLEDIR)/wrapper
 
 $(DESTDIR)$(BUNDLEDIR)/wrapper:	
 	mkdir -p $(DESTDIR)$(BUNDLEDIR)
-	echo -e '#!/bin/bash\ncd $(BUNDLEDIR)\nme=`basename $0`\nexec bundle exec ./$me "$@"' > $(DESTDIR)$(BUNDLEDIR)/wrapper
+	echo -e '#!/bin/bash\ncd $(BUNDLEDIR)\nme=$$(basename $$0)\nexec bundle exec ./$$me "$$@"' > $(DESTDIR)$(BUNDLEDIR)/wrapper
 	chmod 755 $(DESTDIR)$(BUNDLEDIR)/wrapper
