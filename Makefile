@@ -18,6 +18,7 @@ install-to-bundler: $(DESTDIR)$(BUNDLEDIR)/wrapper
 	install -D -m 755 boss-viewer $(DESTDIR)$(BUNDLEDIR)/boss-viewer
 	install -D -m 755 boss_clean_processes $(DESTDIR)$(BUNDLEDIR)/boss_clean_processes
 	install -D -m 755 boss_check_pdef $(DESTDIR)$(BUNDLEDIR)/boss_check_pdef
+	mkdir -p $(DESTDIR)/usr/bin
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss-viewer
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss_clean_processes
@@ -27,5 +28,7 @@ install-to-bundler: $(DESTDIR)$(BUNDLEDIR)/wrapper
 	install -D -m 644 supervisor_boss.conf $(DESTDIR)/etc/supervisor/conf.d/boss.conf
 	install -D -m 644 supervisor_boss-viewer.conf $(DESTDIR)/etc/supervisor/conf.d/boss-viewer.conf
 
-$(DESTDIR)$(BUNDLEDIR)/wrapper:
-	echo -n '#!/bin/bash\ncd $(BUNDLEDIR)\nme=`basename $0`\nexec bundle exec ./$me "$@"' > $(DESTDIR)$(BUNDLEDIR)/wrapper
+$(DESTDIR)$(BUNDLEDIR)/wrapper:	
+	mkdir -p $(DESTDIR)$(BUNDLEDIR)
+	echo -e '#!/bin/bash\ncd $(BUNDLEDIR)\nme=`basename $0`\nexec bundle exec ./$me "$@"' > $(DESTDIR)$(BUNDLEDIR)/wrapper
+	chmod 755 $(DESTDIR)$(BUNDLEDIR)/wrapper
