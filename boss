@@ -13,7 +13,7 @@ if ARGV[0].nil?
     exit 1
 end
 
-conf = IniFile.load("/etc/skynet/skynet.conf")
+conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
 conf = conf.merge(IniFile.load(ARGV[0]))
 
 amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")

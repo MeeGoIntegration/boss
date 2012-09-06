@@ -21,7 +21,7 @@ if ARGV[0].nil?
     exit 1
 end
 
-conf = IniFile.load("/etc/skynet/skynet.conf")
+conf = IniFile.load("/etc/skynet/skynet.conf")  || IniFile.new
 conf = conf.merge(IniFile.load(ARGV[0]))
 
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
