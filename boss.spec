@@ -137,11 +137,12 @@ rm -rf %{buildroot}
 /usr/lib/boss-bundle/boss_check_pdef
 /usr/lib/boss-bundle/boss_clean_processes
 /usr/lib/boss-bundle/boss
+/usr/lib/boss-bundle/wrapper
 
 %package -n boss-viewer
 Summary: Wrapper around ruote-kit
 Group: Productivity/Networking/Web/Utilities
-Requires: rubygem-ruote-kit, boss
+Requires: boss
 
 %description -n boss-viewer
 A web based viewer to provide an overview of BOSS processes
