@@ -32,12 +32,12 @@ AMQP.settings[:vhost] = vhost
 
 #test connection
 begin
-    AMQP.start() do |connection|
-      AMQP::Channel.new(connection) do |channel|
-        puts "Connection opened ok"
-        AMQP.stop { EventMachine.stop }
-      end
+  AMQP.start() do |connection|
+    AMQP::Channel.new(connection) do |channel|
+      puts "Connection opened ok"
+      AMQP.stop { EventMachine.stop }
     end
+  end
 rescue AMQP::Error => e
   puts "Failed to connect to AMQP server, error was :"
   puts e.message
@@ -54,19 +54,19 @@ require 'ruote'
 require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
 
-$engine = Ruote::Engine.new(
+$dashboard = Ruote::Dashboard.new(
   Ruote::Worker.new(
     Ruote::FsStorage.new(db_path)
   )
 )
 
 if conf["boss"]["debug"] == "true"
-    $engine.noisy = true
+    $dashboard.noisy = true
 end
 
 shutdown = proc {
   puts 'Shutdown gracefully'
-  $engine.shutdown
+  $dashboard.shutdown
 }
 
 # We run under supervisor and it communicates via signals
@@ -74,8 +74,12 @@ Signal.trap('SIGTERM', shutdown)
 Signal.trap('SIGINT', shutdown) 
 
 
-# This spawns a thread which listens for amqp responses
-RuoteAMQP::Receiver.new( $engine, :launchitems => true )
+# This spawns an EventMachine thread which listens for amqp responses
+@em = Thread.new { EM.run {} }
+
+#RuoteAMQP::Receiver.new( $dashboard, :launchitems => true )
+receiver = Ruote::Amqp::Receiver.new(
+  $dashboard, AMQP::Channel.new.queue('ruote_workitems'))
 
 # A simple LocalParticipant to handle registering a new AMQP Participant
 #
@@ -89,28 +93,27 @@ class BOSSRegistrar
   def consume(workitem)
     if workitem.params["action"] == "unregister"
       puts "UnRegister participant :", workitem.fields["name"]
-      $engine.unregister_participant(workitem.fields["name"])
+      $dashboard.unregister_participant(workitem.fields["name"])
     else
       puts "Register participant :", workitem.fields["name"]
       puts "using queue ", workitem.fields["queue"]
-      $engine.register_participant(workitem.fields["name"],
-                                   RuoteAMQP::ParticipantProxy,
-                                   :queue => workitem.fields["queue"],
-                                   :position => -2 )
+      $dashboard.register_participant(workitem.fields["name"],
+                                      Ruote::AMQP::Participant,
+                                      :routing_key => workitem.fields["queue"],
+                                      :position => -2 )
     end
     reply_to_engine(workitem)
   end
 end
 
-
-$engine.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+$dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
 
 # All setup... wait for a shutdown
-puts "Engine running"
+puts "Dashboard running"
 
-$engine.join()
-puts "Engine stopped"
+$dashboard.join()
+puts "Dashboard stopped"
 
 # FIXME: RuoteAMQP is not shutting down nicely
 #RuoteAMQP.stop!
