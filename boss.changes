@@ -1,5 +1,6 @@
-* Tue Jul 24 2012 David Greaves <david@dgreaves.com> - 0.7.0bundled-1
- - Add bundler support
+* Tue Jul 24 2012 David Greaves <david@dgreaves.com> - 0.8.0-1
+- Migrate to 2.3.0 of ruote and ruote-kit
+- Package using bundler
 
 * Sat Jan 14 2012 Islam Amer <islam.amer@nokia.com> - 0.7.0-1
 
