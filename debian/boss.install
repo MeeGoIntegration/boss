@@ -1,5 +1,0 @@
-etc/skynet/boss.conf
-etc/supervisor/conf.d/boss.conf
-usr/bin/boss_check_pdef
-usr/bin/boss_clean_processes
-usr/bin/boss
