@@ -98,7 +98,7 @@ class BOSSRegistrar
       puts "Register participant :", workitem.fields["name"]
       puts "using queue ", workitem.fields["queue"]
       $dashboard.register_participant(workitem.fields["name"],
-                                      Ruote::AMQP::Participant,
+                                      Ruote::Amqp::Participant,
                                       :routing_key => workitem.fields["queue"],
                                       :position => -2 )
     end
