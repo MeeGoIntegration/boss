@@ -64,23 +64,6 @@ if conf["boss"]["debug"] == "true"
     $dashboard.noisy = true
 end
 
-shutdown = proc {
-  puts 'Shutdown gracefully'
-  $dashboard.shutdown
-}
-
-# We run under supervisor and it communicates via signals
-Signal.trap('SIGTERM', shutdown) 
-Signal.trap('SIGINT', shutdown) 
-
-
-# This spawns an EventMachine thread which listens for amqp responses
-@em = Thread.new { EM.run {} }
-
-#RuoteAMQP::Receiver.new( $dashboard, :launchitems => true )
-receiver = Ruote::Amqp::Receiver.new(
-  $dashboard, AMQP::Channel.new.queue('ruote_workitems'))
-
 # A simple LocalParticipant to handle registering a new AMQP Participant
 #
 # fields["name"] : the participant name to be registered
@@ -106,18 +89,35 @@ class BOSSRegistrar
   end
 end
 
+@em = Thread.new { EM.run {} }
+sleep 0.5
+
+$channel = AMQP::Channel.new($connection)
+$queue = AMQP::Queue.new($channel, 'ruote_workitems')
+$exchange = AMQP::Exchange.new($channel, :direct, :key => 'ruote_workitems')
+
+receiver = Ruote::Amqp::Receiver.new(
+    $dashboard, $queue)
+
 $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
+$queue.bind($exchange)
+
+shutdown = proc {
+  puts 'Shutdown gracefully'
+  $dashboard.shutdown!
+}
+
+# We run under supervisor and it communicates via signals
+Signal.trap('SIGTERM', shutdown) 
+Signal.trap('SIGINT', shutdown) 
 
 # All setup... wait for a shutdown
 puts "Dashboard running"
-
 $dashboard.join()
-puts "Dashboard stopped"
-
-# FIXME: RuoteAMQP is not shutting down nicely
-#RuoteAMQP.stop!
-AMQP.stop
+puts "Dashboard shutdown"
+receiver.shutdown()
+AMQP.stop { EventMachine.stop }
 puts "AMQP stopped"
 
 exit 0

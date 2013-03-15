@@ -51,6 +51,9 @@ class BossViewer < RuoteKit::Application
 
     super
   end
+  get('/') do
+    redirect to('/_ruote/')
+  end
 end
 
 # Run the sinatra app
