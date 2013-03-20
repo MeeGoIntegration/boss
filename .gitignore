@@ -5,6 +5,5 @@ play
 *.pyo
 *.tar.gz
 *.dsc
-*.changes
 *.rpm
 .bundle
