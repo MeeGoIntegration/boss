@@ -8,12 +8,12 @@ URL: http://wiki.meego.com/BOSS
 Source0: boss-%{version}.tar.bz2
 
 BuildRequires: -post-build-checks -rpmlint-Factory
-Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle
+Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle >= 0.0.3
 %description
 The BOSS package configures the servers used to connect BOSS participants.
 
 %prep
-%setup -q -n src/
+%setup -q 
 
 %build
 true
