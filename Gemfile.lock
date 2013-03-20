@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/jmettraux/ruote.git
-  revision: 803f191027aa3526549c9266aa384ede2f7646b3
+  revision: b7eeff0d789bfe878b26e3139804744fcade864c
   branch: master
   specs:
     ruote (2.3.1)
@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: git://github.com/kennethkalmer/ruote-amqp.git
-  revision: 11219477dfa62197e8e9acd6f2977f07fc603ef3
+  revision: 85bc7380035e3a992be09460a1d2ffbe37435116
   branch: master
   specs:
     ruote-amqp (2.3.0.2)
@@ -83,10 +83,10 @@ GEM
     rufus-treechecker (1.0.8)
       ruby_parser (>= 2.0.5)
     sexp_processor (3.2.0)
-    sinatra (1.3.5)
-      rack (~> 1.4)
-      rack-protection (~> 1.3)
-      tilt (~> 1.3, >= 1.3.3)
+    sinatra (1.4.1)
+      rack (~> 1.5, >= 1.5.2)
+      rack-protection (~> 1.4)
+      tilt (~> 1.3, >= 1.3.4)
     sinatra-respond_to (0.9.0)
       sinatra (~> 1.3)
     sourcify (0.5.0)
@@ -94,7 +94,7 @@ GEM
       ruby2ruby (>= 1.2.5)
       ruby_parser (>= 2.0.5)
       sexp_processor (>= 3.0.5)
-    tilt (1.3.5)
+    tilt (1.3.6)
     tins (0.7.2)
     tzinfo (0.3.37)
     yajl-ruby (1.1.0)
