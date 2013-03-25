@@ -181,7 +181,7 @@ skynet reload boss || true
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
-Requires: obs-server perl-Net-RabbitMQ perl-JSON-XS perl-common-sense
+Requires: obs-server perl-Net--RabbitMQ perl-JSON-XS
 
 %description -n boss-obs-plugin
 This BOSS package configures the OBS servers to connect to the BOSS engine.
