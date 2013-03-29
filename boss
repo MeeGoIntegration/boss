@@ -94,14 +94,8 @@ sleep 0.5
 
 $channel = AMQP::Channel.new($connection)
 $queue = AMQP::Queue.new($channel, 'ruote_workitems')
-$exchange = AMQP::Exchange.new($channel, :direct, :key => 'ruote_workitems')
-
-receiver = Ruote::Amqp::Receiver.new(
-    $dashboard, $queue)
-
+receiver = Ruote::Amqp::Receiver.new($dashboard, $queue)
 $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
-
-$queue.bind($exchange)
 
 shutdown = proc {
   puts 'Shutdown gracefully'
