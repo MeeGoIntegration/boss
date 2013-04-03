@@ -1,3 +1,7 @@
+* Wed Apr 03 2013 David Greaves <david@dgreaves.com> - 0.9.1-1
+- Update bundle
+- Fix AMQP issue
+
 * Tue Jul 24 2012 David Greaves <david@dgreaves.com> - 0.8.0-1
 - Migrate to 2.3.0 of ruote and ruote-kit
 - Package using bundler
