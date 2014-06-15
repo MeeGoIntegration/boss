@@ -1,6 +1,16 @@
 GIT
+  remote: git://github.com/MeeGoIntegration/ruote-amqp.git
+  revision: 5c4788afaec29769f2785089702e2145a6ec7dc9
+  branch: ack
+  specs:
+    ruote-amqp (2.3.0.2)
+      amqp (= 0.9.7)
+      eventmachine (= 0.12.10)
+      ruote (>= 2.3.0)
+
+GIT
   remote: git://github.com/jmettraux/ruote.git
-  revision: b7eeff0d789bfe878b26e3139804744fcade864c
+  revision: fd1060f4e0506ed6ad6770ad35add3607267728c
   branch: master
   specs:
     ruote (2.3.1)
@@ -9,28 +19,18 @@ GIT
       ruby_parser (~> 2.3)
       rufus-cloche (>= 1.0.2)
       rufus-dollar (>= 1.0.4)
-      rufus-json (>= 1.0.1)
+      rufus-json (>= 1.0.5)
       rufus-mnemo (>= 1.2.2)
-      rufus-scheduler (>= 2.0.16)
+      rufus-scheduler (>= 3.0.0)
       rufus-treechecker (>= 1.0.8)
       sourcify (= 0.5.0)
 
 GIT
-  remote: git://github.com/kennethkalmer/ruote-amqp.git
-  revision: 85bc7380035e3a992be09460a1d2ffbe37435116
-  branch: master
-  specs:
-    ruote-amqp (2.3.0.2)
-      amqp (= 0.9.7)
-      eventmachine (= 0.12.10)
-      ruote (>= 2.3.0)
-
-GIT
   remote: git://github.com/kennethkalmer/ruote-kit.git
-  revision: 617fc1c34564a5a2c11cd5ff833e1ff6673e7c2a
+  revision: ed3277022235b3a7f0b74921b6bab2291cc121fd
   branch: master
   specs:
-    ruote-kit (2.3.0)
+    ruote-kit (2.3.0.2)
       haml (>= 3.1.4)
       rufus-json (>= 0.2.5)
       sinatra (>= 1.2.0)
@@ -42,32 +42,36 @@ GEM
     amq-client (0.9.12)
       amq-protocol (>= 1.2.0)
       eventmachine
-    amq-protocol (1.2.0)
+    amq-protocol (1.9.2)
     amqp (0.9.7)
       amq-client (~> 0.9.4)
       amq-protocol (>= 0.9.4)
       eventmachine
     blankslate (2.1.2.4)
-    diff-lcs (1.2.1)
+    diff-lcs (1.2.5)
     eventmachine (0.12.10)
     file-tail (1.0.12)
       tins (~> 0.5)
-    haml (4.0.0)
+    haml (4.0.5)
       tilt
     inifile (2.0.2)
     parslet (1.4.0)
       blankslate (~> 2.0)
     rack (1.5.2)
-    rack-protection (1.5.0)
+    rack-protection (1.5.3)
       rack
-    rspec (2.13.0)
-      rspec-core (~> 2.13.0)
-      rspec-expectations (~> 2.13.0)
-      rspec-mocks (~> 2.13.0)
-    rspec-core (2.13.1)
-    rspec-expectations (2.13.0)
-      diff-lcs (>= 1.1.3, < 2.0)
-    rspec-mocks (2.13.0)
+    rspec (3.0.0)
+      rspec-core (~> 3.0.0)
+      rspec-expectations (~> 3.0.0)
+      rspec-mocks (~> 3.0.0)
+    rspec-core (3.0.1)
+      rspec-support (~> 3.0.0)
+    rspec-expectations (3.0.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.0.0)
+    rspec-mocks (3.0.1)
+      rspec-support (~> 3.0.0)
+    rspec-support (3.0.0)
     ruby2ruby (1.3.1)
       ruby_parser (~> 2.0)
       sexp_processor (~> 3.0)
@@ -76,15 +80,15 @@ GEM
     rufus-cloche (1.0.4)
       rufus-json (>= 1.0.3)
     rufus-dollar (1.0.4)
-    rufus-json (1.0.4)
+    rufus-json (1.0.6)
     rufus-mnemo (1.2.3)
-    rufus-scheduler (2.0.18)
-      tzinfo (>= 0.3.23)
+    rufus-scheduler (3.0.8)
+      tzinfo
     rufus-treechecker (1.0.8)
       ruby_parser (>= 2.0.5)
     sexp_processor (3.2.0)
-    sinatra (1.4.1)
-      rack (~> 1.5, >= 1.5.2)
+    sinatra (1.4.5)
+      rack (~> 1.4)
       rack-protection (~> 1.4)
       tilt (~> 1.3, >= 1.3.4)
     sinatra-respond_to (0.9.0)
@@ -94,10 +98,12 @@ GEM
       ruby2ruby (>= 1.2.5)
       ruby_parser (>= 2.0.5)
       sexp_processor (>= 3.0.5)
-    tilt (1.3.6)
-    tins (0.7.2)
-    tzinfo (0.3.37)
-    yajl-ruby (1.1.0)
+    thread_safe (0.3.4)
+    tilt (1.4.1)
+    tins (0.13.2)
+    tzinfo (1.2.1)
+      thread_safe (~> 0.1)
+    yajl-ruby (1.2.1)
 
 PLATFORMS
   ruby
