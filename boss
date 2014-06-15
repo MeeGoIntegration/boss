@@ -21,7 +21,7 @@ user = conf["boss"]["amqp_user"] || "boss"
 pass = conf["boss"]["amqp_pwd"]  || "boss"
 vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
-threads = conf["boss"]["threads"] || 10
+threads = conf["boss"]["threads"].to_i || 10
 #db_type
 
 AMQP.settings[:host] = amqp_host
@@ -94,16 +94,30 @@ $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'fi
 @em = Thread.new { EM.run {} }
 sleep 0.5
 
+tg = ThreadGroup.new
 receivers = []
 threads.times {
   $channel = AMQP::Channel.new($connection)
   $channel.prefetch(1)
   $queue = AMQP::Queue.new($channel, 'ruote_workitems', :durable => 1)
-  receivers << Ruote::Amqp::Receiver.new($dashboard, $queue)
+  receiver = Ruote::Amqp::Receiver.new($dashboard, $queue)
+  receivers << receiver
+  t = Thread.new { receiver.join }
+  t.run
+  tg.add(t)
+  sleep 0.2
+}
+
+tg.list.each { |t|
+  puts "foo"
+  puts t.status
 }
 
 shutdown = proc {
   puts 'Shutdown gracefully'
+  receivers.each { |rcvr|
+    rcvr.shutdown
+  }
   $dashboard.shutdown!
 }
 
@@ -113,11 +127,13 @@ Signal.trap('SIGINT', shutdown)
 
 # All setup... wait for a shutdown
 puts "Dashboard running"
-$dashboard.join()
+$dashboard.join
+
 puts "Dashboard shutdown"
-receivers.each { |rcvr|
- rcvr.shutdown()
+tg.list.each { |t|
+  t.join
 }
+
 AMQP.stop { EventMachine.stop }
 puts "AMQP stopped"
 
