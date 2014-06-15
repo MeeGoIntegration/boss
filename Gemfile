@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 gem "rspec", :require => "spec" 
 gem "inifile"
-gem "ruote-amqp", :git => "git://github.com/kennethkalmer/ruote-amqp.git", :branch => "master"
+gem "ruote-amqp", :git => "git://github.com/MeeGoIntegration/ruote-amqp.git", :branch => "ack"
 gem "ruote-kit", :git => "git://github.com/kennethkalmer/ruote-kit.git", :branch => "master"
 gem "yajl-ruby"
 gem "ruote", :git => "git://github.com/jmettraux/ruote.git", :branch => "master"
