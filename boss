@@ -21,7 +21,18 @@ user = conf["boss"]["amqp_user"] || "boss"
 pass = conf["boss"]["amqp_pwd"]  || "boss"
 vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
-threads = conf["boss"]["threads"].to_i || 10
+
+threads = {}
+begin
+  t = conf["boss"]["threads"].split(',')
+  t.each { |item|
+    prio, num = item.split(':')
+    threads[prio.to_s] = num.to_i
+  }
+rescue
+  threads = {"low" => 1, "normal" => 1}
+end
+
 #db_type
 
 AMQP.settings[:host] = amqp_host
@@ -50,20 +61,176 @@ rescue AMQP::Error => e
   exit 1
 end
 
+
 require 'yajl'
 require 'ruote'
 require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
 
-$dashboard = Ruote::Dashboard.new(
-  Ruote::Worker.new(
-    Ruote::FsStorage.new(db_path)
-  )
-)
+# custom RuoteAmqp Receiver and Ruote Worker with priority handling
 
-if conf["boss"]["debug"] == "true"
-    $dashboard.noisy = true
+module Ruote
+  class BOSSWorker < Ruote::Worker
+
+    attr_reader :priority
+
+    def initialize(storage=nil, options={})
+
+      super(storage)
+
+      @priority = options.fetch("priority", "normal")
+
+    end
+
+    def can_handle(msg)
+      begin
+        msg["workitem"]["fields"].fetch("priority") == @priority
+      rescue 
+        true
+      end
+
+    end
+
+    def process_msgs
+
+      @msgs = @storage.get_msgs if @msgs.empty?
+
+      collisions = 0
+
+      while @msg = @msgs.shift
+
+        if can_handle(@msg)
+
+          #$stderr.puts "handling #{@msg['_id']}"
+
+          r = process(@msg)
+
+          if r != false
+            @processed_msgs += 1
+          else
+            collisions += 1
+          end
+
+          if collisions > 2
+            @msgs = @msgs[(@msgs.size / 2)..-1] || []
+            collisions = 0
+          end
+
+          break if Time.now.utc - @last_time >= 0.8
+
+        else
+
+          #$stderr.puts "can't handle #{@msg['_id']}, skipping"
+          
+        end
+
+      end
+    end
+
+  end
 end
+
+class BOSSReceiver < Ruote::Amqp::Receiver
+
+    attr_reader :number
+    attr_reader :priority
+
+    def initialize(engine_or_storage, queue, options={})
+
+      @number = options.fetch("number", 0)
+      @priority = options.fetch("priority", "normal")
+
+      super
+
+    end
+
+    def can_handle(item)
+
+        @priority == item['fields'].fetch("priority", "normal")
+
+    end
+
+    def handle(header, payload)
+
+      item = decode_message(header, payload)
+
+      if item['error'] && item['fei']
+
+        #puts "Error #{item['fei']}"
+        flunk(item)
+        header.ack
+
+      elsif item['fields'] && item['fei']
+
+        if can_handle(item)
+
+          #puts "Receive #{item['fei']}"
+          receive(item)
+          header.ack
+
+        else
+
+          #puts "Reject #{item['fei']}, can't handle it"
+          header.reject({:requeue => true})
+
+        end
+
+      elsif item['process_definition'] || item['definition']
+
+        #puts "Launch item #{item['fei']}"
+        launch(item)
+        header.ack
+
+      else
+
+        raise ArgumentError.new("cannot receive or launch #{item.inspect}")
+
+      end
+
+    rescue => e
+
+      handle_error(e)
+      header.reject
+
+    end
+
+end
+
+
+@em = Thread.new { EM.run {} }
+sleep 0.5
+
+$dashboards = []
+receivers = []
+storage = Ruote::FsStorage.new(db_path)
+
+threads.each_pair { |prio, i|
+  i.times { |c|
+
+    worker = Ruote::BOSSWorker.new(storage, { "priority" => prio })
+    dashboard = Ruote::Dashboard.new(worker)
+
+    if conf["boss"]["debug"] == "true"
+      dashboard.noisy = true
+    end
+
+    channel = AMQP::Channel.new($connection)
+    channel.prefetch(1)
+    queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
+    receivers << BOSSReceiver.new(dashboard, queue, { "number" => c, "priority" => prio })
+
+    $dashboards << dashboard
+    sleep 0.2
+  }
+}
+
+shutdown = proc {
+  puts "Shutdown requested by user"
+  $dashboards.first.shutdown
+}
+
+Signal.trap('SIGTERM', shutdown) 
+Signal.trap('SIGINT', shutdown) 
 
 # A simple LocalParticipant to handle registering a new AMQP Participant
 #
@@ -77,11 +244,11 @@ class BOSSRegistrar
   def consume(workitem)
     if workitem.params["action"] == "unregister"
       puts "UnRegister participant :", workitem.fields["name"]
-      $dashboard.unregister_participant(workitem.fields["name"])
+      $dashboards.first.unregister_participant(workitem.fields["name"])
     else
       puts "Register participant :", workitem.fields["name"]
       puts "using queue ", workitem.fields["queue"]
-      $dashboard.register_participant(workitem.fields["name"],
+      $dashboards.first.register_participant(workitem.fields["name"],
                                       Ruote::Amqp::Participant,
                                       :routing_key => workitem.fields["queue"],
                                       :position => -2 )
@@ -89,49 +256,22 @@ class BOSSRegistrar
     reply_to_engine(workitem)
   end
 end
-$dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
-@em = Thread.new { EM.run {} }
-sleep 0.5
+$dashboards.first.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
-tg = ThreadGroup.new
-receivers = []
-threads.times {
-  $channel = AMQP::Channel.new($connection)
-  $channel.prefetch(1)
-  $queue = AMQP::Queue.new($channel, 'ruote_workitems', :durable => 1)
-  receiver = Ruote::Amqp::Receiver.new($dashboard, $queue)
-  receivers << receiver
-  t = Thread.new { receiver.join }
-  t.run
-  tg.add(t)
-  sleep 0.2
-}
+# TODO: A simple LocalParticipant to handle error logging
+# instead of custom code added to every process
 
-tg.list.each { |t|
-  puts "foo"
-  puts t.status
-}
-
-shutdown = proc {
-  puts 'Shutdown gracefully'
-  receivers.each { |rcvr|
-    rcvr.shutdown
-  }
-  $dashboard.shutdown!
-}
-
-# We run under supervisor and it communicates via signals
-Signal.trap('SIGTERM', shutdown) 
-Signal.trap('SIGINT', shutdown) 
-
-# All setup... wait for a shutdown
-puts "Dashboard running"
-$dashboard.join
-
+puts "Dashboard threads running"
+$dashboards.first.join
 puts "Dashboard shutdown"
-tg.list.each { |t|
-  t.join
+
+receivers.each { |rcvr|
+  rcvr.shutdown
+}
+
+$dashboards.each { |dbrd|
+  dbrd.shutdown
 }
 
 AMQP.stop { EventMachine.stop }
