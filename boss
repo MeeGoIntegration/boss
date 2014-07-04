@@ -68,14 +68,14 @@ require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
 
 # custom RuoteAmqp Receiver and Ruote Worker with priority handling
-# custom Ruote FsStorage that gets 5 msgs only at a time
+# custom Ruote FsStorage that gets 1 msg only at a time
 
 module Ruote
   class BOSSStorage < Ruote::FsStorage
 
-    def get_msgs
+    def get_msgs (skip)
 
-      get_many('msgs', nil, :limit => 2).sort_by { |d| d['put_at'] }
+      get_many('msgs', nil, {:limit => 1, :skip => skip}).sort_by { |d| d['put_at'] }
     end
 
   end
@@ -83,12 +83,14 @@ module Ruote
   class BOSSWorker < Ruote::Worker
 
     attr_reader :priority
+    attr_reader :number
 
     def initialize(storage=nil, options={})
 
-      super(storage)
-
       @priority = options.fetch("priority", "normal")
+      @number = options.fetch("number", 0)
+
+      super(storage)
 
     end
 
@@ -103,7 +105,7 @@ module Ruote
 
     def process_msgs
 
-      @msgs = @storage.get_msgs if @msgs.empty?
+      @msgs = @storage.get_msgs(@number) if @msgs.empty?
 
       collisions = 0
 
@@ -217,7 +219,7 @@ storage = Ruote::BOSSStorage.new(db_path)
 threads.each_pair { |prio, i|
   i.times { |c|
 
-    worker = Ruote::BOSSWorker.new(storage, { "priority" => prio })
+    worker = Ruote::BOSSWorker.new(storage, { "number" => c, "priority" => prio })
     dashboard = Ruote::Dashboard.new(worker)
 
     if conf["boss"]["debug"] == "true"
