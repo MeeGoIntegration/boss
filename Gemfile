@@ -5,4 +5,5 @@ gem "ruote-amqp", :git => "git://github.com/MeeGoIntegration/ruote-amqp.git", :b
 gem "ruote-kit", :git => "git://github.com/kennethkalmer/ruote-kit.git", :branch => "master"
 gem "yajl-ruby"
 gem "ruote", :git => "git://github.com/jmettraux/ruote.git", :branch => "master"
+gem "rufus-cloche", :git => "git@github.com:MeeGoIntegration/rufus-cloche.git", :branch => "devel"
 gem "amqp"

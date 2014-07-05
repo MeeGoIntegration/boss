@@ -102,8 +102,8 @@ module Ruote
 
     def get_msgs (limit, priority)
 
-      msgs = get_many('msgs', priority, {:limit => limit})
-      msgs = get_many('msgs', nil, {:limit => limit}) if msgs.empty? 
+      msgs = get_many('msgs', priority, {:limit => limit, :noblock => true})
+      msgs = get_many('msgs', nil, {:limit => limit, :noblock => true}) if msgs.empty? 
       msgs.sort_by { |d| d['put_at'] }
 
     end
@@ -204,18 +204,18 @@ class BOSSReceiver < Ruote::Amqp::Receiver
 
       elsif item['fields'] && item['fei']
 
-        if can_handle(item)
+        #if can_handle(item)
 
           puts "Receive #{item['fei']}"
           receive(item)
           header.ack
 
-        else
+        #else
 
-          puts "Reject #{item['fei']}, can't handle it"
-          header.reject({:requeue => true})
+          #puts "Reject #{item['fei']}, can't handle it"
+          #header.reject({:requeue => true})
 
-        end
+        #end
 
       elsif item['process_definition'] || item['definition']
 
