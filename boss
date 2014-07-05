@@ -79,15 +79,15 @@ module Ruote
 
       @counter ||= 0
       begin
-        priority = "!" + options["workitem"]["fields"]["priority"]
+        priority = options["workitem"]["fields"]["priority"]
       rescue
-        priority = ""
+        priority = "normal"
 
       end
 
       t = Time.now.utc
       ts = "#{t.strftime('%Y-%m-%d')}!#{t.to_i}.#{'%06d' % t.usec}"
-      _id = "#{$$}!#{Thread.current.object_id}!#{ts}!#{'%03d' % @counter}#{priority}"
+      _id = "#{$$}!#{Thread.current.object_id}!#{priority}!#{ts}!#{'%03d' % @counter}"
 
       @counter = (@counter + 1) % 1000
         # some platforms (windows) have shallow usecs, so adding that counter...
