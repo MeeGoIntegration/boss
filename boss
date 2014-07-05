@@ -68,14 +68,44 @@ require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
 
 # custom RuoteAmqp Receiver and Ruote Worker with priority handling
-# custom Ruote FsStorage that gets 1 msg only at a time
+# custom Ruote FsStorage that gets configurable number of msgs at a time
 
 module Ruote
   class BOSSStorage < Ruote::FsStorage
 
-    def get_msgs (skip)
+    def prepare_msg_doc(action, options)
 
-      get_many('msgs', nil, {:limit => 1, :skip => skip}).sort_by { |d| d['put_at'] }
+      # merge! is way faster than merge (no object creation probably)
+
+      @counter ||= 0
+      begin
+        priority = "!" + options["workitem"]["fields"]["priority"]
+      rescue
+        priority = ""
+
+      end
+
+      t = Time.now.utc
+      ts = "#{t.strftime('%Y-%m-%d')}!#{t.to_i}.#{'%06d' % t.usec}"
+      _id = "#{$$}!#{Thread.current.object_id}!#{ts}!#{'%03d' % @counter}#{priority}"
+
+      @counter = (@counter + 1) % 1000
+        # some platforms (windows) have shallow usecs, so adding that counter...
+
+      msg = options.merge!('type' => 'msgs', '_id' => _id, 'action' => action)
+
+      msg.delete('_rev')
+        # in case of message replay
+
+      msg
+    end
+
+    def get_msgs (limit, priority)
+
+      msgs = get_many('msgs', priority, {:limit => limit})
+      msgs = get_many('msgs', nil, {:limit => limit}) if msgs.empty? 
+      msgs.sort_by { |d| d['put_at'] }
+
     end
 
   end
@@ -105,15 +135,15 @@ module Ruote
 
     def process_msgs
 
-      @msgs = @storage.get_msgs(@number) if @msgs.empty?
+      @msgs = @storage.get_msgs(10, @priority) if @msgs.empty?
 
       collisions = 0
 
       while @msg = @msgs.shift
 
-        if can_handle(@msg)
+        #if can_handle(@msg)
 
-          #$stderr.puts "handling #{@msg['_id']}"
+          $stderr.puts "handling #{@msg['_id']}"
 
           r = process(@msg)
 
@@ -130,11 +160,11 @@ module Ruote
 
           break if Time.now.utc - @last_time >= 0.8
 
-        else
+        #else
 
           #$stderr.puts "can't handle #{@msg['_id']}, skipping"
           
-        end
+        #end
 
       end
     end
@@ -168,7 +198,7 @@ class BOSSReceiver < Ruote::Amqp::Receiver
 
       if item['error'] && item['fei']
 
-        #puts "Error #{item['fei']}"
+        puts "Error #{item['fei']}"
         flunk(item)
         header.ack
 
@@ -176,20 +206,20 @@ class BOSSReceiver < Ruote::Amqp::Receiver
 
         if can_handle(item)
 
-          #puts "Receive #{item['fei']}"
+          puts "Receive #{item['fei']}"
           receive(item)
           header.ack
 
         else
 
-          #puts "Reject #{item['fei']}, can't handle it"
+          puts "Reject #{item['fei']}, can't handle it"
           header.reject({:requeue => true})
 
         end
 
       elsif item['process_definition'] || item['definition']
 
-        #puts "Launch item #{item['fei']}"
+        puts "Launch item #{item['fei']}"
         launch(item)
         header.ack
 
