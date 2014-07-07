@@ -1,5 +1,13 @@
 GIT
-  remote: git://github.com/MeeGoIntegration/ruote-amqp.git
+  remote: https://github.com/MeeGoIntegration/rufus-cloche.git
+  revision: b14c8094b89db1014541718f133a9ed9c7ea5a48
+  branch: devel
+  specs:
+    rufus-cloche (1.0.4)
+      rufus-json (>= 1.0.3)
+
+GIT
+  remote: https://github.com/MeeGoIntegration/ruote-amqp.git
   revision: 5c4788afaec29769f2785089702e2145a6ec7dc9
   branch: ack
   specs:
@@ -9,7 +17,7 @@ GIT
       ruote (>= 2.3.0)
 
 GIT
-  remote: git://github.com/jmettraux/ruote.git
+  remote: https://github.com/jmettraux/ruote.git
   revision: fd1060f4e0506ed6ad6770ad35add3607267728c
   branch: master
   specs:
@@ -26,7 +34,7 @@ GIT
       sourcify (= 0.5.0)
 
 GIT
-  remote: git://github.com/kennethkalmer/ruote-kit.git
+  remote: https://github.com/kennethkalmer/ruote-kit.git
   revision: ed3277022235b3a7f0b74921b6bab2291cc121fd
   branch: master
   specs:
@@ -35,14 +43,6 @@ GIT
       rufus-json (>= 0.2.5)
       sinatra (>= 1.2.0)
       sinatra-respond_to (>= 0.8.0)
-
-GIT
-  remote: git@github.com:MeeGoIntegration/rufus-cloche.git
-  revision: 419fc62b37e9165653e89af64023af790020d75a
-  branch: devel
-  specs:
-    rufus-cloche (1.0.4)
-      rufus-json (>= 1.0.3)
 
 GEM
   remote: http://rubygems.org/
