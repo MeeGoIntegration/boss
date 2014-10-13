@@ -7,6 +7,7 @@ require 'inifile'
 require 'amqp'
 
 STDOUT.sync = true
+STDERR.sync = true
 
 if ARGV[0].nil?
     $stderr.puts "No arguments provided. Please provide path to confiuration file."
@@ -21,6 +22,8 @@ user = conf["boss"]["amqp_user"] || "boss"
 pass = conf["boss"]["amqp_pwd"]  || "boss"
 vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
+port = Integer(conf["boss"]["viewer_port"]) || 9292
+bind = conf["boss"]["viewer_address"] || "127.0.0.1"
 
 threads = {}
 begin
@@ -67,6 +70,8 @@ require 'yajl'
 require 'ruote'
 require 'ruote/storage/fs_storage'
 require 'ruote-amqp'
+require 'ruote-kit'
+
 require 'pp'
 
 # custom RuoteAmqp Receiver and Ruote Worker with priority handling
@@ -127,15 +132,6 @@ module Ruote
 
     end
 
-    def can_handle(msg)
-      begin
-        msg["workitem"]["fields"].fetch("priority") == @priority
-      rescue 
-        true
-      end
-
-    end
-
     def process_msgs
 
       @msgs = @storage.get_msgs(10, @priority) if @msgs.empty?
@@ -143,8 +139,6 @@ module Ruote
       collisions = 0
 
       while @msg = @msgs.shift
-
-        #if can_handle(@msg)
 
           $stderr.puts "handling #{@msg['_id']}"
 
@@ -180,44 +174,6 @@ class BOSSReceiver < Ruote::Amqp::Receiver
       @priority = options.fetch("priority", "normal")
 
       super
-
-    end
-
-    def can_handle(item)
-
-        @priority == item['fields'].fetch("priority", "normal")
-
-    end
-
-    def handle(header, payload)
-
-      item = decode_message(header, payload)
-
-      if item['error'] && item['fei']
-
-        flunk(item)
-        header.ack
-
-      elsif item['fields'] && item['fei']
-
-        receive(item)
-        header.ack
-
-      elsif item['process_definition'] || item['definition']
-
-        launch(item)
-        header.ack
-
-      else
-
-        raise ArgumentError.new("cannot receive or launch #{item.inspect}")
-
-      end
-
-    rescue => e
-
-      handle_error(e)
-      header.reject
 
     end
 
@@ -288,6 +244,42 @@ end
 
 $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
+RuoteKit.bind_engine(storage)
+
+RuoteKit.engine.register :clear => false do
+  # register forces 'override' to false, but postion 'over' overrides that
+  # and if matching key ('.+' for catchall) is not in list, it goes to last
+  catchall Ruote::StorageParticipant, {'position' => 'over'}
+end
+
+class BossViewer < RuoteKit::Application
+
+  # disable sinatra traps of INT and TERM
+  disable :traps
+
+  # Override and extend the class method so we can shutdown the engine
+  def BossViewer.quit!
+
+    puts "\nstopping engine"
+    RuoteKit.engine.shutdown
+    RuoteKit.engine.join
+    puts "engine stopped"
+
+    super
+  end
+  get('/') do
+    redirect to('/_ruote/')
+  end
+end
+
+@web_server_thread = Thread.start do
+  BossViewer.run!(options={
+    :bind => bind,
+    :port => port,
+    :logging => true
+  })
+end
+
 shutdown = proc {
   $stderr.puts "Shutdown requested by user"
 
@@ -300,6 +292,8 @@ shutdown = proc {
   $stderr.puts "AMQP stopped"
 
   $dashboard.shutdown
+
+  BossViewer.quit!
 }
 
 memdebug = proc {
