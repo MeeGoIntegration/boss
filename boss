@@ -24,7 +24,8 @@ vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
 port = Integer(conf["boss"]["viewer_port"]) || 9292
 bind = conf["boss"]["viewer_address"] || "127.0.0.1"
-hprio = conf["boss"]["high_priority"] || "high"
+#hprio = conf["boss"]["high_priority"] || /!high/
+hprio = /!high/
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0" 
 $pnum = pname.split("_")[1].to_i
 
@@ -55,6 +56,7 @@ rescue AMQP::Error => e
 end
 
 
+require 'rubygems'
 require 'amqp'
 require 'yajl'
 require 'ruote'
@@ -64,8 +66,13 @@ require 'ruote-kit'
 
 require 'pp'
 
-# TODO: move the classes to a different file/module?
+require 'ruby-prof'
 
+
+RubyProf.measure_mode = RubyProf::MEMORY
+RubyProf.start
+
+# TODO: move the classes to a different file/module?
 module Ruote
   class BOSSStorage < Ruote::FsStorage
 
@@ -129,6 +136,12 @@ module Ruote
 
     end
 
+    def handle_step_error(e, msg)
+      puts 'ruote step error: ' + e.inspect
+      pp msg
+
+    end
+
     def process_msgs
 
       @msgs = @storage.get_msgs(1, @priority) if @msgs.empty?
@@ -181,14 +194,16 @@ end
 @em = Thread.new { EM.run {} }
 sleep 0.5
 
-receivers = []
 storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
 
 if $pnum == 0 
-  scheduler = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => ["scheduler"] })
+  roles = ["scheduler"]
 else
-  worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => ["worker"] })
+  roles = ["worker"]
 end
+
+worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => roles })
+worker.context['worker_info_enabled'] = false
 
 # creating the dashboard with a storage context will start all workers
 # each in its own thread
@@ -272,41 +287,43 @@ end
 shutdown = proc {
   $stderr.puts "Shutdown requested by user"
 
+  result = RubyProf.stop
+  printer = RubyProf::FlatPrinter.new(result)
+  printer.print(STDOUT)
+
   receiver.shutdown
-
   $stderr.puts "Receiver shutdown"
-
-  AMQP.stop { EventMachine.stop }
-  $stderr.puts "AMQP stopped"
-
-  $dashboard.shutdown
 
   if $pnum == 0
     BossViewer.quit!
   end
 
+  worker.shutdown
+  $stderr.puts "Worker shutdown"
+
+  $dashboard.shutdown
+  $stderr.puts "Dashboard shutdown"
+
+  AMQP.stop
+  $stderr.puts "AMQP stopped"
+
 }
 
 memdebug = proc {
-  $stderr.puts "Objects after GC"
-  ObjectSpace.garbage_collect
-  pp ObjectSpace.count_objects
-  File.open('/tmp/objids', 'w+') { |file|
-    ObjectSpace.each_object() { |obj|
-      file.write(pp(obj))
-    }
-  }
-  $stderr.puts "Done"
+  pp GC.stat
 }
 
 
 Signal.trap('SIGTERM', shutdown) 
 Signal.trap('SIGINT', shutdown) 
 Signal.trap('SIGUSR1', memdebug)
+
 $dashboard.join
 $stderr.puts "Dashboard shutdown"
-if $pnum == 0
-  @web_server_thread.join
-end
+
+
+#if $pnum == 0
+#  @web_server_thread.join
+#end
 
 exit 0
