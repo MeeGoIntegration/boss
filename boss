@@ -66,12 +66,6 @@ require 'ruote-kit'
 
 require 'pp'
 
-require 'ruby-prof'
-
-
-RubyProf.measure_mode = RubyProf::MEMORY
-RubyProf.start
-
 # TODO: move the classes to a different file/module?
 module Ruote
   class BOSSStorage < Ruote::FsStorage
@@ -286,10 +280,6 @@ end
 
 shutdown = proc {
   $stderr.puts "Shutdown requested by user"
-
-  result = RubyProf.stop
-  printer = RubyProf::FlatPrinter.new(result)
-  printer.print(STDOUT)
 
   receiver.shutdown
   $stderr.puts "Receiver shutdown"
