@@ -7,9 +7,10 @@ require 'inifile'
 require 'amqp'
 
 STDOUT.sync = true
+STDERR.sync = true
 
 if ARGV[0].nil?
-    puts "No arguments provided. Please provide path to confiuration file."
+    $stderr.puts "No arguments provided. Please provide path to confiuration file."
     exit 1
 end
 
@@ -34,18 +35,18 @@ AMQP.settings[:vhost] = vhost
 begin
   AMQP.start() do |connection|
     AMQP::Channel.new(connection) do |channel|
-      puts "Connection opened ok"
+      $stderr.puts "Connection opened ok"
       AMQP.stop { EventMachine.stop }
     end
   end
 rescue AMQP::Error => e
-  puts "Failed to connect to AMQP server, error was :"
-  puts e.message
-  puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
-  puts "Run the following commands as root on the AMQP server :"
-  puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
-  puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
-  puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
+  $stderr.puts "Failed to connect to AMQP server, error was :"
+  $stderr.puts e.message
+  $stderr.puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
+  $stderr.puts "Run the following commands as root on the AMQP server :"
+  $stderr.puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
+  $stderr.puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
+  $stderr.puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
   exit 1
 end
 
@@ -75,11 +76,11 @@ class BOSSRegistrar
   include Ruote::LocalParticipant
   def consume(workitem)
     if workitem.params["action"] == "unregister"
-      puts "UnRegister participant :", workitem.fields["name"]
+      $stderr.puts "UnRegister participant :", workitem.fields["name"]
       $dashboard.unregister_participant(workitem.fields["name"])
     else
-      puts "Register participant :", workitem.fields["name"]
-      puts "using queue ", workitem.fields["queue"]
+      $stderr.puts "Register participant :", workitem.fields["name"]
+      $stderr.puts "using queue ", workitem.fields["queue"]
       $dashboard.register_participant(workitem.fields["name"],
                                       Ruote::Amqp::Participant,
                                       :routing_key => workitem.fields["queue"],
@@ -98,7 +99,7 @@ receiver = Ruote::Amqp::Receiver.new($dashboard, $queue)
 $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 
 shutdown = proc {
-  puts 'Shutdown gracefully'
+  $stderr.puts 'Shutdown gracefully'
   $dashboard.shutdown!
 }
 
@@ -107,11 +108,11 @@ Signal.trap('SIGTERM', shutdown)
 Signal.trap('SIGINT', shutdown) 
 
 # All setup... wait for a shutdown
-puts "Dashboard running"
+$stderr.puts "Dashboard running"
 $dashboard.join()
-puts "Dashboard shutdown"
+$stderr.puts "Dashboard shutdown"
 receiver.shutdown()
 AMQP.stop { EventMachine.stop }
-puts "AMQP stopped"
+$stderr.puts "AMQP stopped"
 
 exit 0
