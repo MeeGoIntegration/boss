@@ -1,0 +1,99 @@
+* Wed Apr 03 2013 David Greaves <david@dgreaves.com> - 0.9.1-1
+- Update bundle
+- Fix AMQP issue
+
+* Tue Jul 24 2012 David Greaves <david@dgreaves.com> - 0.8.0-1
+- Migrate to 2.3.0 of ruote and ruote-kit
+- Package using bundler
+
+* Sat Jan 14 2012 Islam Amer <islam.amer@nokia.com> - 0.7.0-1
+
+- Move under supervisor skynet control
+- Merge boss-viewer into source tree
+
+* Thu Nov 10 2011 Islam Amer <islam.amer@nokia.com> - 0.6.2-2
+
+- Remove version dependency  on rabbitmq-server
+
+* Sat Oct 08 2011 David Greaves <david@dgreaves.com> - 0.6.2-1
+
+- Install scripts
+
+* Wed Aug 10 2011 Dmitry Rozhkov <dmitry.rozhkov@nokia.com> - 0.6.1-1
+
+- Get rid of lintian warnings
+- Simplify debian packaging
+- Add package description to README
+- Set dependency on latest rabbitmq to ensure rabbit has correct
+  initscript setup (David)
+
+* Fri Jul 15 2011 Ramez Hanna <rhanna@informatiq.org> - 0.6.0-1
+
+- add :action => 'unregister' to boss_register participant
+- New API : bump API version
+
+* Thu May 05 2011 David Greaves <david@dgreaves.com> - 0.5.1-1
+
+- Change the require order to force a yajl/json backend
+
+* Wed May 04 2011 David Greaves <david@dgreaves.com> - 0.5.0-1
+
+- New version numbering
+- Change the obsEvent format to add new attributes (backward compatible)
+
+* Tue Apr 12 2011 David Greaves <david@dgreaves.com> - 0.4-18
+
+- Make the DB group writeable but no world read
+
+* Tue Apr 12 2011 David Greaves <david@dgreaves.com> - 0.4-17
+
+- Use /etc/default or sysconfig settings  in run/log scripts
+- Correct the SERVER_DATABASE value - and use it
+- Allow anyone in the boss group to update the DB
+- From JF Ding : obs plugin: do not crash if failed to connect mq server
+- sync spec and debian packaging
+
+* Mon Apr 11 2011 David Greaves <david@dgreaves.com> - 0.4-16
+
+- Ensure the HOME env is set in 'run' to prevent ruby-inline errors
+
+* Tue Apr 05 2011 Islam Amer <islam.amer@nokia.com> - 0.4-15
+
+- fix rcboss
+
+* Wed Mar 30 2011 David Greaves <david@dgreaves.com> - 0.4-14
+
+- Pipe log via tai64nlocal for readable timestamps
+
+* Tue Mar 29 2011 David Greaves <david@dgreaves.com> - 0.4-13
+
+- Tiny update to the postinst
+
+* Mon Mar 28 2011 David Greaves <david@dgreaves.com> - 0.4-12
+
+- Depend ruote-amqp
+
+* Mon Mar 28 2011 David Greaves <david@dgreaves.com> - 0.4-11
+
+- Improve the dependencies now gem packaging is under control
+
+* Fri Mar 25 2011 David Greaves <david@dgreaves.com> - 0.4-10
+
+- Don't use DAEMON_DIR; ensure SERVER_DATABASE is present and owned by boss
+
+* Thu Mar 24 2011 David Greaves <david@dgreaves.com> - 0.4-9
+
+- Don't allow rabbitmqctl failures to cause installation failure if the
+  users are already there
+
+* Wed Mar 23 2011 David Greaves <david@dgreaves.com> - 0.4-8
+
+- Fix dependencies in control (including hack until gems are correctly packaged)
+- Create an init.d/ script
+- Add Autoflush to the daemon to provide timely logging
+- Create/delete Rabbit MQ users and vhosts in postinst/rm
+
+* Tue Mar 08 2011 Islam Amer <islam.amer@nokia.com> - 0.4-1
+
+- Initial debian packaging
+
