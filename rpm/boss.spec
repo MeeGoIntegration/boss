@@ -1,17 +1,17 @@
 Name: boss
-Version: 0.9.1
+Version: 0.9.2
 Release: 1
-Summary: MeeGo Build Orchestration Server System
+Summary: Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
 License: GPL2
-URL: http://wiki.meego.com/BOSS
 Source0: boss.tar.gz
 
-BuildRequires: -post-build-checks -rpmlint-Factory
 Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle >= 0.0.3
 
 %description
 The BOSS package configures the servers used to connect BOSS participants.
+The web based viewer to provide an overview of BOSS processes is now
+integrated directly into BOSS.
 
 %prep
 %setup -q -n src
@@ -78,8 +78,10 @@ chmod -R u=rwx,g=rwxs,o= $SERVER_DATABASE
 # For now just force up the server - this is a virtual/convenience
 # package afer all
 echo "Starting RabbitMQ and configuring to auto-start"
-rcrabbitmq-server start
-chkconfig rabbitmq-server on
+systemctl enable epmd.service
+systemctl enable rabbitmq-server.service
+systemctl start epmd.service
+systemctl start rabbitmq-server.service
 if [ -e /usr/sbin/rabbitmqctl ]; then
     echo "Adding boss exchange/user and granting access"
     rabbitmqctl add_vhost boss || true
@@ -139,45 +141,6 @@ rm -rf %{buildroot}
 /usr/lib/boss-bundle/boss
 /usr/lib/boss-bundle/wrapper
 
-%package -n boss-viewer
-Summary: Wrapper around ruote-kit
-Group: Productivity/Networking/Web/Utilities
-Requires: boss
-
-%description -n boss-viewer
-A web based viewer to provide an overview of BOSS processes
-
-%pre -n boss-viewer
-
-SERVICE_DIR=/etc/service
-VIEWER_HOME=/var/lib/boss-viewer
-VIEWER_DAEMON_DIR=/var/lib/boss-viewer/boss-viewer
-SNAME=boss-viewer
-[ -f /etc/sysconfig/boss-viewer ] && . /etc/sysconfig/boss-viewer
-
-if [ -e ${SERVICE_DIR}/${SNAME} ]; then
-    rm ${SERVICE_DIR}/${SNAME}
-fi
-if /usr/bin/svok $VIEWER_DAEMON_DIR; then
-  # Upgrade from daemontools based version
-    echo "stopping daemontools controlled boss-viewer ..."
-
-    # Shut down the supervise and log too
-    svc -dx ${VIEWER_DAEMON_DIR}
-    sleep 1
-    svc -dx ${VIEWER_DAEMON_DIR}/log
-fi
-
-%files -n boss-viewer
-%defattr(-,root,root,-)
-/usr/bin/boss-viewer
-/usr/lib/boss-bundle/boss-viewer
-%config(noreplace) /etc/supervisor/conf.d/boss-viewer.conf
-
-%post -n boss-viewer
-#7. tell supervisor to pickup config and code changes
-skynet apply || true
-skynet reload boss || true
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
