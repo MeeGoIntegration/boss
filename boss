@@ -24,6 +24,7 @@ vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
 port = Integer(conf["boss"]["viewer_port"]) || 9292
 bind = conf["boss"]["viewer_address"] || "127.0.0.1"
+batch_size = Integer(conf["boss"]["batch_size"]) || 1
 #hprio = conf["boss"]["high_priority"] || /!high/
 hprio = /!high/
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0" 
@@ -106,9 +107,10 @@ module Ruote
     end
 
     def get_msgs (limit, priority)
-
-      msgs = get_many('msgs', priority, {:limit => limit, :noblock => true, :skip => limit * @number})
-      msgs = get_many('msgs', nil, {:limit => limit, :noblock => true, :skip => limit * @number}) if msgs.empty? 
+      # Space worker processes (>=2)
+      offset = @number >= 2 ? @number - 2 : 0
+      msgs = get_many('msgs', priority, {:limit => limit, :noblock => true, :skip => offset * limit})
+      msgs = get_many('msgs', nil, {:limit => limit, :noblock => true, :skip => offset * limit}) if msgs.empty? 
       msgs.sort_by { |d| d['put_at'] }
 
     end
@@ -119,12 +121,14 @@ module Ruote
 
     attr_reader :priority
     attr_reader :number
+    attr_reader :batch_size
 
     def initialize(storage=nil, options={})
 
       @priority = options.fetch("priority", "high")
       @number = options.fetch("number", 0)
       @roles = options.fetch("roles", [])
+      @batch_size = options.fetch("batch_size", 1)
 
       super(storage)
 
@@ -138,7 +142,8 @@ module Ruote
 
     def process_msgs
 
-      @msgs = @storage.get_msgs(1, @priority) if @msgs.empty?
+      @msgs = @storage.get_msgs(@batch_size, @priority) if @msgs.empty?
+      puts "Got messages: #{@msgs.length}"
 
       while @msg = @msgs.pop
 
@@ -148,6 +153,7 @@ module Ruote
             @processed_msgs += 1
           end
 
+          puts "Messages remaining: #{@msgs.length}"
           break if Time.now.utc - @last_time >= 0.8
 
       end
@@ -199,7 +205,12 @@ if $pnum > 1
   roles = ["worker"]
 end
 
-worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => roles })
+worker = Ruote::BOSSWorker.new(storage, {
+    "number" => $pnum,
+    "priority" => hprio,
+    "roles" => roles,
+    "batch_size" => batch_size,
+})
 worker.context['worker_info_enabled'] = false
 
 # creating the dashboard with a storage context will start all workers
