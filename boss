@@ -124,7 +124,7 @@ module Ruote
 
       @priority = options.fetch("priority", "high")
       @number = options.fetch("number", 0)
-      @roles = options.fetch("roles", ["scheduler", "worker"])
+      @roles = options.fetch("roles", [])
 
       super(storage)
 
@@ -190,9 +190,12 @@ sleep 0.5
 
 storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
 
-if $pnum == 0 
+roles = []
+if $pnum == 1
   roles = ["scheduler"]
-else
+end
+
+if $pnum > 1
   roles = ["worker"]
 end
 
