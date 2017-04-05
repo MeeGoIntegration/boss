@@ -141,21 +141,37 @@ module Ruote
     end
 
     def process_msgs
+      # This is same as Ruote::Worker process_messages, but passes batch_size
+      # and priority to storage. We could put them in storage initialize and
+      # use default process_msgs.
+      # Another thing is the @last_time timestamp used by Ruote::Worker, which
+      # is only updated in process_schedules, and we only process schedules or
+      # messages depending on the worker role
 
       @msgs = @storage.get_msgs(@batch_size, @priority) if @msgs.empty?
-      puts "Got messages: #{@msgs.length}"
+      collisions = 0
+      start_time = Time.now.utc
 
-      while @msg = @msgs.pop
+      while @msg = @msgs.shift
+        r = process(@msg)
 
-          r = process(@msg)
+        if r != false
+          @processed_msgs += 1
+        else
+          collisions += 1
+        end
 
-          if r != false
-            @processed_msgs += 1
-          end
+        if collisions > 2
+          puts "Collisions detected, chopping message batch..."
+          @msgs = @msgs[(@msgs.size / 2)..-1] || []
+          collisions = 0
+        end
 
-          puts "Messages remaining: #{@msgs.length}"
-          break if Time.now.utc - @last_time >= 0.8
-
+        # Don't know where that 0.8 comes from but Ruote::Worker uses same
+        if Time.now.utc - start_time >= 0.8
+          puts "Messages left on time limt: #{@msgs.size}"
+          break
+        end
       end
     end
 
