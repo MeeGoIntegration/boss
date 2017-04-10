@@ -19,6 +19,7 @@ install-to-bundler: $(DESTDIR)$(BUNDLEDIR)/wrapper
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss_clean_processes
 	ln -s $(BUNDLEDIR)/wrapper $(DESTDIR)/usr/bin/boss_check_pdef
+
 	install -D -m 644 notify_boss.pm $(DESTDIR)/usr/lib/obs/server/plugins/notify_boss.pm
 	install -D -m 644 boss.conf $(DESTDIR)/etc/skynet/boss.conf
 	install -D -m 644 supervisor_boss.conf $(DESTDIR)/etc/supervisor/conf.d/boss.conf

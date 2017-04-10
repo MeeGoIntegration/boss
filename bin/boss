@@ -3,8 +3,21 @@
 require 'rubygems'
 require 'bundler/setup'
 
-require 'inifile'
 require 'amqp'
+require 'yajl'
+require 'ruote'
+require 'ruote/storage/fs_storage'
+require 'ruote-amqp'
+require 'ruote-kit'
+
+require 'pp'
+
+require 'boss/boss_store'
+require 'boss/boss_viewer'
+require 'boss/boss_receiver'
+require 'boss/boss_registrar'
+
+require 'inifile'
 
 STDOUT.sync = true
 STDERR.sync = true
@@ -53,22 +66,6 @@ rescue AMQP::Error => e
   $stderr.puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
   exit 1
 end
-
-
-require 'rubygems'
-require 'amqp'
-require 'yajl'
-require 'ruote'
-require 'ruote/storage/fs_storage'
-require 'ruote-amqp'
-require 'ruote-kit'
-
-require 'pp'
-
-require_relative 'boss_store'
-require_relative 'boss_viewer'
-require_relative 'boss_receiver'
-require_relative 'boss_registrar'
 
 @em = Thread.new { EM.run {} }
 sleep 0.5
