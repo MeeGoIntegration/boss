@@ -6,6 +6,7 @@ Group: Productivity/Networking/Web/Utilities
 License: GPL2
 Source0: boss-%{version}.tar.gz
 Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle >= 0.0.3
+BuildRequires: boss-bundle >= 0.0.4
 
 %description
 The BOSS package configures the servers used to connect BOSS participants.
@@ -16,10 +17,21 @@ integrated directly into BOSS.
 %setup
 
 %build
-true
+# Use the vendor cache installed into the root by boss-bundle
+cp -a /usr/lib/boss-bundle/vendor .
+
+gem build boss.gemspec
+mv boss-*.gem vendor/cache/
+
+bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin/ --no-cache --shebang=/usr/bin/ruby
+# Clean up the cache
+rm -rf vendor
 
 %install
-make DESTDIR=%{buildroot} install-to-bundler
+cp -al . %{buildroot}/usr/lib/boss-bundle/
+find %{buildroot}/usr/lib/boss-bundle/
+
+make install-rest
 
 %post
 #!/bin/bash
