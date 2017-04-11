@@ -5,8 +5,10 @@ Summary: Build Orchestration Server System
 Group: Productivity/Networking/Web/Utilities
 License: GPL2
 Source0: boss-%{version}.tar.gz
-Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0, boss-bundle >= 0.0.3
-BuildRequires: boss-bundle >= 0.0.4
+Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0
+BuildRequires:  rubygems ruby-devel
+%rubygems_requires
+BuildRequires:  rubygem(bundler) git gcc-c++ openssl-devel pkg-config
 
 %description
 The BOSS package configures the servers used to connect BOSS participants.
@@ -17,21 +19,21 @@ integrated directly into BOSS.
 %setup
 
 %build
-# Use the vendor cache installed into the root by boss-bundle
-cp -a /usr/lib/boss-bundle/vendor .
-
 gem build boss.gemspec
 mv boss-*.gem vendor/cache/
 
+# http://bundler.io/v1.3/man/bundle-install.1.html#DEPLOYMENT-MODE
+# --deployment means "Gems are installed to vendor/bundle"
 bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin/ --no-cache --shebang=/usr/bin/ruby
-# Clean up the cache
-rm -rf vendor
 
 %install
-cp -al . %{buildroot}/usr/lib/boss-bundle/
-find %{buildroot}/usr/lib/boss-bundle/
+mkdir -p %{buildroot}/usr/lib/boss-bundle/
+cp -al vendor/bundle/. %{buildroot}/usr/lib/boss-bundle/
 
-make install-rest
+make DESTDIR=%{buildroot} install-rest
+
+# Change #!/usr/local/bin/ruby to #!/usr/bin/ruby
+sed -i -e 's_#!/usr/local/bin/ruby_#!/usr/bin/ruby_' $(grep -rl "usr/local/bin/ruby" %{buildroot})
 
 %post
 #!/bin/bash
@@ -115,14 +117,6 @@ SNAME=boss
 if [ -e ${SERVICE_DIR}/${SNAME} ]; then
     rm ${SERVICE_DIR}/${SNAME}
 fi
-if /usr/bin/svok $SERVER_HOME; then
-  # Upgrade from daemontools based version
-    echo "stopping daemontools controlled boss-viewer ..."
-    # Shut down the supervise and log too
-    svc -dx ${SERVER_HOME}
-    sleep 1
-    svc -dx ${SERVER_HOME}/log
-fi
 
 %postun
 #don't do anything in case of upgrade
@@ -142,16 +136,13 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc INSTALL README
+%dir /etc/skynet
+%dir /etc/supervisor
+%dir /etc/supervisor/conf.d
 %config(noreplace) /etc/skynet/boss.conf
 %config(noreplace) /etc/supervisor/conf.d/boss.conf
-/usr/bin/boss_check_pdef
-/usr/bin/boss_clean_processes
-/usr/bin/boss
-/usr/lib/boss-bundle/boss_check_pdef
-/usr/lib/boss-bundle/boss_clean_processes
-/usr/lib/boss-bundle/boss
-/usr/lib/boss-bundle/wrapper
-
+/usr/bin/*
+/usr/lib/boss-bundle
 
 %package -n boss-obs-plugin
 Summary: MeeGo Build Orchestration Server System
@@ -164,6 +155,11 @@ This BOSS package configures the OBS servers to connect to the BOSS engine.
 %files -n boss-obs-plugin
 %defattr(-,root,root,-)
 /usr/lib/obs/server/plugins/notify_boss.pm
+%dir /usr/lib/obs
+%dir /usr/lib/obs/server
+%dir /usr/lib/obs/server/plugins
+
 %post -n boss-obs-plugin
 %postun -n boss-obs-plugin
+
 
