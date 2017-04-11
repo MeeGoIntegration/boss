@@ -30,81 +30,14 @@ bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/lib/boss-bundle/
 cp -al vendor/bundle/. %{buildroot}/usr/lib/boss-bundle/
 
+#Install the config files and boss-install
 make DESTDIR=%{buildroot} install-rest
 
 # Change #!/usr/local/bin/ruby to #!/usr/bin/ruby
 sed -i -e 's_#!/usr/local/bin/ruby_#!/usr/bin/ruby_' $(grep -rl "usr/local/bin/ruby" %{buildroot})
 
 %post
-#!/bin/bash
-#
-#
-# Sane defaults:
-SERVER_HOME=/var/lib/boss
-SERVER_LOGDIR=/var/log/boss
-SERVER_DATABASE=/var/spool/boss
-SERVER_USER=boss
-SERVER_NAME="BOSS"
-SERVER_GROUP=boss
-SERVICE_DIR=/etc/service
-
-# create user to avoid running server as root
-# 1. create group if not existing
-if ! getent group | grep -q "^$SERVER_GROUP:" ; then
-    echo -n "Adding group $SERVER_GROUP.."
-    groupadd --system $SERVER_GROUP 2>/dev/null ||true
-    echo "..done"
-fi
-# 2. create dirs if not existing
-test -d $SERVER_HOME || mkdir -p $SERVER_HOME
-test -d $SERVER_DATABASE || mkdir -p $SERVER_DATABASE
-test -d $SERVER_LOGDIR || mkdir -p $SERVER_LOGDIR
-
-# 3. create user if not existing
-if ! getent passwd | grep -q "^$SERVER_USER:"; then
-    echo -n "Adding system user $SERVER_USER.."
-    useradd --system -d $SERVER_HOME -g $SERVER_GROUP \
-	$SERVER_USER 2>/dev/null || true
-    echo "..done"
-fi
-# 4. adjust passwd entry
-usermod -c "$SERVER_NAME" \
-    -d $SERVER_HOME   \
-    -g $SERVER_GROUP  \
-    $SERVER_USER
-# 5. adjust file and directory permissions
-chown -R $SERVER_USER:$SERVER_GROUP $SERVER_HOME
-chmod -R u=rwx,g=rxs,o= $SERVER_HOME
-
-chown -R $SERVER_USER:$SERVER_GROUP $SERVER_LOGDIR
-chmod -R u=rwx,g=rxs,o= $SERVER_LOGDIR
-
-chown -R $SERVER_USER:$SERVER_GROUP $SERVER_DATABASE
-chmod -R u=rwx,g=rwxs,o= $SERVER_DATABASE
-
-# 6. create the boss user/vhost etc if we have rabbitmqctl
-
-# This would be nice ... but Suse apparently thinks that just because
-# you 'Require' a server you can't actually assume it's there...
-#
-# Maybe put it in a "first_run" or just provide INSTALL info to sysadmin?
-# For now just force up the server - this is a virtual/convenience
-# package afer all
-echo "Starting RabbitMQ and configuring to auto-start"
-systemctl enable epmd.service
-systemctl enable rabbitmq-server.service
-systemctl start epmd.service
-systemctl start rabbitmq-server.service
-if [ -e /usr/sbin/rabbitmqctl ]; then
-    echo "Adding boss exchange/user and granting access"
-    rabbitmqctl add_vhost boss || true
-    rabbitmqctl add_user boss boss || true
-    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
-fi
-#7. tell supervisor to pickup config and code changes
-skynet apply || true
-skynet reload boss || true
-
+echo "Please run boss-install as root to setup rabbitmq, users and skynet"
 
 %pre
 /usr/sbin/groupadd -r boss 2> /dev/null || :
