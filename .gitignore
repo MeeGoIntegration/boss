@@ -8,4 +8,4 @@ play
 *.changes
 *.rpm
 .bundle
-vendor
+boss-bundle
