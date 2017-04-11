@@ -1,0 +1,38 @@
+
+#pagination
+
+  - res = request.path.split('/')[2]
+
+  - if @skip
+
+    - lim = @limit || settings.limit
+
+    - @skip = 0 if @skip < 0
+    - @skip = @count - lim if @skip >= @count
+
+    = (@count > 0) ? @skip + 1 : 0
+    to
+    = [ @skip + @limit, @count ].min
+    of
+    = @count
+    = res
+
+    - las = lim < 1 ? @count : ((@count / lim.to_f).ceil - 1) * lim
+    - pre = [ 0, @skip - lim ].max
+    - nex = [ @skip + lim, las ].min
+
+    %a.pagination{ :href => request.path, :rel => 'all' } all
+    - if @skip > 0
+      %a.pagination{ :href => "#{request.path}?limit=#{lim}&skip=0", :rel => 'first' } first
+    - if @skip > 0 && pre != 0
+      %a.pagination{ :href => "#{request.path}?limit=#{lim}&skip=#{pre}", :rel => 'previous' } previous
+    - if nex != las
+      %a.pagination{ :href => "#{request.path}?limit=#{lim}&skip=#{nex}", :rel => 'next' } next
+    - if las > 0 && @skip < las
+      %a.pagination{ :href => "#{request.path}?limit=#{lim}&skip=#{las}", :rel => 'last' } last
+
+  - else
+
+    - if resources = instance_variable_get("@#{res}")
+      = "#{resources.size} #{res}"
+

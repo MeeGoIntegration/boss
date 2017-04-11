@@ -1,0 +1,64 @@
+
+- # under the MIT license, see LICENSE.txt
+
+%h1 processes
+
+= haml :_pagination, :layout => false
+
+%table.list
+  %thead
+    %td
+      wfid
+    %td
+      name
+    %td
+      position
+    %td
+      state
+    %td
+      tags
+    %td
+      launched
+    %td
+      last active
+    %td
+      exps
+    %td
+      errs
+    %td
+      wis
+
+  - @processes.each do |process|
+    %tr
+      %td
+        = alink(:processes, process.wfid, :text => process.wfid)
+      %td
+        &= process.definition_name
+        &= process.definition_revision
+      %td
+        - process.position.each do |pos|
+          - stored_wi = process.stored_workitems.find { |wi| wi.fei.sid == pos[0] }
+          - text = "#{pos[1]} #{pos[2]['task']}"
+          - if stored_wi
+            = alink(:workitems, stored_wi.fei.sid, :text => text)
+          - else
+            &= text
+      %td
+        = process.root_expression_state
+      %td
+        &= (process.tags || []).collect { |ta| ta.first }.join(', ')
+      %td
+        - if process.launched_time
+          = Time.parse(process.launched_time).localtime.strftime('%Y/%m/%d %H:%M:%S')
+      %td
+        - if process.last_active
+          = Time.parse(process.last_active).localtime.strftime('%Y/%m/%d %H:%M:%S')
+      %td.right{ :title => 'expressions' }
+        = alink(:expressions, process.wfid, :text => process.expressions.size)
+      %td.right{ :title => 'errors' }
+        - if process.errors.size > 0
+          = alink(:errors, process.wfid, :text => process.errors.size)
+      %td.right{ :title => 'workitems' }
+        - if process.stored_workitems.size > 0
+          = alink(:workitems, process.wfid, :text => process.stored_workitems.size)
+

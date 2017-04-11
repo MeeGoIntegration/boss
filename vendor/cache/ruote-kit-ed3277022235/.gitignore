@@ -1,0 +1,9 @@
+*.swp
+work*/
+ruote_work*/
+.DS_Store
+.yardoc
+doc/*
+pkg/*
+.bundle/*
+nbproject/*
