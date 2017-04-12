@@ -22,11 +22,10 @@ integrated directly into BOSS.
 gem build boss.gemspec
 mv boss-*.gem vendor/cache/
 
+%install
 # http://bundler.io/v1.3/man/bundle-install.1.html#DEPLOYMENT-MODE
 # --deployment means "Gems are installed to vendor/bundle"
 bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin/ --no-cache --shebang=/usr/bin/ruby
-
-%install
 mkdir -p %{buildroot}/usr/lib/boss-bundle/
 cp -al vendor/bundle/. %{buildroot}/usr/lib/boss-bundle/
 
@@ -91,8 +90,3 @@ This BOSS package configures the OBS servers to connect to the BOSS engine.
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 %dir /usr/lib/obs/server/plugins
-
-%post -n boss-obs-plugin
-%postun -n boss-obs-plugin
-
-

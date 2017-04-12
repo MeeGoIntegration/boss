@@ -1,3 +1,4 @@
+for warning in ["devel-file-in-non-devel-package", "hidden-file-or-dir", "non-executable-script", "zero-length", "version-control-internal-file", "script-without-shebang", "files-duplicate"]:
+    addFilter("%s .*/ruby/2.*/gems/" % warning)
+
 setBadness('wrong-script-interpreter', 0)
-setBadness('devel-file-in-non-devel-package', 0)
-addFilter("boss.* devel-file-in-non-devel-package")
