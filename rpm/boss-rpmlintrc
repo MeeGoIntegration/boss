@@ -1,0 +1,3 @@
+setBadness('wrong-script-interpreter', 0)
+setBadness('devel-file-in-non-devel-package', 0)
+addFilter("boss.* devel-file-in-non-devel-package")
