@@ -28,7 +28,13 @@ mv boss-*.gem vendor/cache/
 # --deployment means "Gems are installed to vendor/bundle"
 bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin/ --no-cache --shebang=/usr/bin/ruby
 mkdir -p %{buildroot}/usr/lib/boss-bundle/
-cp -al vendor/bundle/. %{buildroot}/usr/lib/boss-bundle/
+
+sed -i -e's#^BUNDLE_PATH:.*$#BUNDLE_PATH: /usr/lib/boss-bundle/vendor/bundle#' .bundle/config  
+sed -i -e's#^BUNDLE_BIN:.*$#BUNDLE_BIN: /usr/bin#' .bundle/config
+
+cp -al vendor %{buildroot}/usr/lib/boss-bundle/
+cp -al .bundle/ %{buildroot}/usr/lib/boss-bundle/
+cp -al Gemfile Gemfile.lock %{buildroot}/usr/lib/boss-bundle/
 
 #Install the config files and boss-install
 make DESTDIR=%{buildroot} install-rest
