@@ -26,15 +26,21 @@ mv boss-*.gem vendor/cache/
 %install
 # http://bundler.io/v1.3/man/bundle-install.1.html#DEPLOYMENT-MODE
 # --deployment means "Gems are installed to vendor/bundle"
-bundle install --local --standalone --deployment --binstubs=%{buildroot}/usr/bin/ --no-cache --shebang=/usr/bin/ruby
+bundle install --local --standalone --deployment --binstubs=bin --no-cache --shebang=/usr/bin/ruby
 mkdir -p %{buildroot}/usr/lib/boss-bundle/
 
-sed -i -e's#^BUNDLE_PATH:.*$#BUNDLE_PATH: /usr/lib/boss-bundle/vendor/bundle#' .bundle/config  
-sed -i -e's#^BUNDLE_BIN:.*$#BUNDLE_BIN: /usr/bin#' .bundle/config
+# Fix up the relative paths in the binstubs
+sed -i -e 's_../../vendor/bundle_/usr/lib/boss-bundle/vendor/bundle_' bin/*
 
+# Install everything into /usr/lib/boss-bundle/
+cp -al bin %{buildroot}/usr/lib/boss-bundle/
 cp -al vendor %{buildroot}/usr/lib/boss-bundle/
 cp -al .bundle/ %{buildroot}/usr/lib/boss-bundle/
 cp -al Gemfile Gemfile.lock %{buildroot}/usr/lib/boss-bundle/
+
+# And install the new binstubs
+mkdir -p %{buildroot}/usr/bin/
+(cd bin; for b in *; do ln -s /usr/lib/boss-bundle/bin/$b %{buildroot}/usr/bin/; done)
 
 #Install the config files and boss-install
 make DESTDIR=%{buildroot} install-rest
