@@ -6,6 +6,7 @@ Group: Productivity/Networking/Web/Utilities
 License: GPL2
 Source0: boss-%{version}.tar.gz
 Requires: rabbitmq-server >= 1.7.2, python-boss-skynet > 0.6.0
+Obsoletes: boss-bundle
 BuildRequires:  rubygems ruby-devel
 %rubygems_requires
 BuildRequires:  rubygem(bundler) git gcc-c++ openssl-devel pkg-config
