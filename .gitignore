@@ -9,3 +9,4 @@ play
 *.rpm
 .bundle
 boss-bundle
+vendor/bundle
