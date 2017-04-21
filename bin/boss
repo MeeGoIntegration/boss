@@ -38,6 +38,13 @@ db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
 port = Integer(conf["boss"]["viewer_port"]) || 9292
 bind = conf["boss"]["viewer_address"] || "127.0.0.1"
 hprio = /!high/
+
+# Supervisor runs a number of processes each with an identifier
+# We use that to decide what role we have
+# Currently
+# 0 => viewer
+# 1 => scheduler
+# 2 => worker
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0" 
 $pnum = pname.split("_")[1].to_i
 
