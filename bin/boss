@@ -29,7 +29,9 @@ end
 
 conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
 conf = conf.merge(IniFile.load(ARGV[0]))
-debug = conf["boss"]["debug"] == "true"
+debug = (conf["boss"]["debug"] == true)
+
+$stderr.puts "Read configuration as:\n#{conf}\n" if debug
 
 amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
 user = conf["boss"]["amqp_user"] || "boss"
@@ -48,8 +50,6 @@ hprio = /!high/
 # 2 => worker
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
 $pnum = pname.split("_")[1].to_i
-
-$stderr.puts "Read configuration file.\n#{conf}" if debug
 
 AMQP.settings[:host] = amqp_host
 AMQP.settings[:port] = Integer(amqp_port)
