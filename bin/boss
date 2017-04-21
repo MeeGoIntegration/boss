@@ -131,12 +131,17 @@ shutdown = proc {
 
   $stderr.puts "Shutdown requested by user" if debug
 
-  receiver.shutdown
-  $stderr.puts "Receiver has shutdown"
-
   if $pnum == 0
     BossViewer.quit!
     $stderr.puts "Viewer shutdown" if debug
+  end
+
+  if $pnum >1
+    receiver.shutdown
+    $stderr.puts "Receiver has shutdown"
+
+    AMQP.stop
+    $stderr.puts "AMQP has stopped"
   end
 
   worker.shutdown
@@ -145,8 +150,6 @@ shutdown = proc {
   $dashboard.shutdown
   $stderr.puts "Dashboard has shutdown"
 
-  AMQP.stop
-  $stderr.puts "AMQP has stopped"
 }
 
 memdebug = proc {
