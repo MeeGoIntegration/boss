@@ -46,7 +46,7 @@ hprio = /!high/
 # 0 => viewer
 # 1 => scheduler
 # 2 => worker
-pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0" 
+pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
 $pnum = pname.split("_")[1].to_i
 
 $stderr.puts "Read configuration file.\n#{conf}" if debug
@@ -80,7 +80,7 @@ end
 storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
 
 roles = []
-if $pnum == 1 
+if $pnum == 1
   roles = ["scheduler"]
 end
 
@@ -157,8 +157,8 @@ memdebug = proc {
 }
 
 
-Signal.trap('SIGTERM', shutdown) 
-Signal.trap('SIGINT', shutdown) 
+Signal.trap('SIGTERM', shutdown)
+Signal.trap('SIGINT', shutdown)
 Signal.trap('SIGUSR1', memdebug)
 
 $stderr.puts "Handing over to the dashboard..." if debug
