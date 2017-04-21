@@ -17,6 +17,7 @@ require 'ruote-kit'
 require 'pp'
 
 require 'boss/boss_store'
+require 'boss/boss_worker'
 require 'boss/boss_viewer'
 require 'boss/boss_receiver'
 require 'boss/boss_registrar'
