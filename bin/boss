@@ -74,9 +74,6 @@ rescue AMQP::Error => e
   exit 1
 end
 
-@em = Thread.new { EM.run {} }
-sleep 0.5
-
 storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
 
 roles = []
@@ -99,12 +96,16 @@ if conf["boss"]["debug"] == "true"
   $dashboard.noisy = true
 end
 
-channel = AMQP::Channel.new($connection)
-channel.prefetch(1)
-queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
-receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, "priority" => hprio })
+if $pnum >1
+  @em = Thread.new { EM.run {} }
+  sleep 0.5
+  channel = AMQP::Channel.new($connection)
+  channel.prefetch(1)
+  queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
+  receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, "priority" => hprio })
 
-$dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+  $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+end
 
 RuoteKit.bind_engine(storage)
 
