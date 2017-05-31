@@ -1,0 +1,11 @@
+ruote_rdoc/
+work/
+tmp/
+pkg/
+*.swp
+tags
+.bundle/
+.rspec
+Gemfile
+Gemfile.lock
+quickstart/ruote_work

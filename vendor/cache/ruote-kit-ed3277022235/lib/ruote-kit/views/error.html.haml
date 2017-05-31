@@ -1,0 +1,110 @@
+
+- # under the MIT license, see LICENSE.txt
+
+- @_uses_fluo = true
+
+%h1 error #{@error.fei.sid}
+
+#fluo
+
+%table.details
+
+  %tr
+    %td
+      id
+    %td
+      &= @error.fei.sid
+
+  %tr
+    %td
+      at
+    %td
+      &= @error.at
+
+  %tr
+    %td
+      action / direction
+    %td
+      &= @error.action
+
+  %tr
+    %td
+      message
+    %td
+      &= @error.message
+
+  %tr
+    %td
+      trace
+    %td
+      %pre.trace #{h(@error.trace[0, 80] + '...')}
+      %pre.trace{ :style => 'display: none;' } #{h(@error.trace)}
+
+  %tr
+    %td
+      details
+    %td
+      - if @error.details.nil?
+        %pre.details nil
+      - else
+        - details = Ruote.pps(@error.details)
+        %pre.details #{h(details[0, 80] + '...')}
+        %pre.details{ :style => 'display: none;' } #{h(details)}
+
+  %tr
+    %td.no_border{ :colspan => 2 }
+      &nbsp;
+
+  %tr
+    %td
+      expression
+    %td
+      GET
+      = alink(:expressions, @error.fei.sid)
+      -#%span.explanation
+      -#  you can re-apply the expression (and hopefully nuke the error) from there
+  %tr
+    %td
+      process
+    %td
+      GET
+      = alink(:processes, @error.wfid)
+  %tr
+    %td
+      process errors
+    %td
+      GET
+      = alink(:errors, @error.wfid)
+
+  %tr
+    %td.no_border{ :colspan => 2 }
+      &nbsp;
+  %tr
+    %td
+    %td
+      %form{ :method => 'POST' }
+        %input{ :type => 'hidden', :name => '_method', :value => 'DELETE' }
+        %input{ :type => 'submit', :value => "DELETE /_ruote/errors/#{@error.fei.sid}", :title => 'replay at this error' }
+        -#%span.explanation
+        -#  replay at this error
+
+:javascript
+
+  $(document).ready(function() {
+
+    $('pre.trace').on('click', Rk.toggleNext);
+    $('pre.details').on('click', Rk.toggleNext);
+
+    Rk.fitFluo();
+
+    var proc_rep = #{process_tree(@process)};
+    var pins = #{Rufus::Json.encode(@pins)};
+
+    RuoteFluo.render('#fluo', proc_rep, { fit: 'down' });
+    Rk.onClickZoom('#fluo');
+
+    pins.forEach(function(pin) {
+      RuoteFluo.pin('#fluo', pin[0], pin[1], pin[2])
+    });
+  });
+

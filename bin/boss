@@ -1,0 +1,168 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+
+require 'amqp'
+require 'yajl'
+require 'ruote'
+require 'ruote/storage/fs_storage'
+require 'ruote-amqp'
+require 'ruote-kit'
+
+require 'pp'
+
+require 'boss/boss_store'
+require 'boss/boss_viewer'
+require 'boss/boss_receiver'
+require 'boss/boss_registrar'
+
+require 'inifile'
+
+STDOUT.sync = true
+STDERR.sync = true
+
+if ARGV[0].nil?
+    $stderr.puts "No arguments provided. Please provide path to confiuration file."
+    exit 1
+end
+
+conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
+conf = conf.merge(IniFile.load(ARGV[0]))
+debug = (conf["boss"]["debug"] == true)
+
+$stderr.puts "Read configuration as:\n#{conf}\n" if debug
+
+amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
+user = conf["boss"]["amqp_user"] || "boss"
+pass = conf["boss"]["amqp_pwd"]  || "boss"
+vhost = conf["boss"]["amqp_vhost"] || "boss"
+db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
+port = Integer(conf["boss"]["viewer_port"]) || 9292
+bind = conf["boss"]["viewer_address"] || "127.0.0.1"
+hprio = /!high/
+
+# Supervisor runs a number of processes each with an identifier
+# We use that to decide what role we have
+# Currently
+# 0 => viewer
+# 1 => scheduler
+# 2 => worker
+pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
+$pnum = pname.split("_")[1].to_i
+
+AMQP.settings[:host] = amqp_host
+AMQP.settings[:port] = Integer(amqp_port)
+AMQP.settings[:user] = user
+AMQP.settings[:pass] = pass
+AMQP.settings[:vhost] = vhost
+AMQP.logging = debug
+
+#test connection
+begin
+  AMQP.start() do |connection|
+    AMQP::Channel.new(connection) do |channel|
+      $stderr.puts "Connection opened ok"
+      AMQP.stop { EventMachine.stop }
+    end
+  end
+rescue AMQP::Error => e
+  $stderr.puts "Failed to connect to AMQP server, error was :"
+  $stderr.puts e.message
+  $stderr.puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
+  $stderr.puts "Run the following commands as root on the AMQP server :"
+  $stderr.puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
+  $stderr.puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
+  $stderr.puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
+  exit 1
+end
+
+storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
+
+roles = []
+if $pnum == 1
+  roles = ["scheduler"]
+end
+
+if $pnum > 1
+  roles = ["worker"]
+end
+
+worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => roles })
+worker.context['worker_info_enabled'] = debug
+
+# creating the dashboard with a storage context will start all workers
+# each in its own thread
+$dashboard = Ruote::Dashboard.new(storage)
+$stderr.puts "Dashboard threads running" if debug
+$dashboard.noisy = debug
+
+if $pnum >1
+  @em = Thread.new { EM.run {} }
+  sleep 0.5
+  channel = AMQP::Channel.new($connection)
+  channel.prefetch(1)
+  queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
+  receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, "priority" => hprio })
+
+  $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+end
+
+RuoteKit.bind_engine(storage)
+
+RuoteKit.engine.register :clear => false do
+  # register forces 'override' to false, but postion 'over' overrides that
+  # and if matching key ('.+' for catchall) is not in list, it goes to last
+  catchall Ruote::StorageParticipant, {'position' => 'over'}
+end
+
+if $pnum == 0
+  @web_server_thread = Thread.start do
+
+    BossViewer.run!(options={
+      :bind => bind,
+      :port => port,
+      :logging => true
+    })
+  end
+end
+
+shutdown = proc {
+
+  $stderr.puts "Shutdown requested by user" if debug
+
+  if $pnum == 0
+    BossViewer.quit!
+    $stderr.puts "Viewer shutdown" if debug
+  end
+
+  if $pnum >1
+    receiver.shutdown
+    $stderr.puts "Receiver has shutdown"
+
+    AMQP.stop
+    $stderr.puts "AMQP has stopped"
+  end
+
+  worker.shutdown
+  $stderr.puts "Worker has shutdown"
+
+  $dashboard.shutdown
+  $stderr.puts "Dashboard has shutdown"
+
+}
+
+memdebug = proc {
+  pp GC.stat
+}
+
+
+Signal.trap('SIGTERM', shutdown)
+Signal.trap('SIGINT', shutdown)
+Signal.trap('SIGUSR1', memdebug)
+
+$stderr.puts "Handing over to the dashboard..." if debug
+$dashboard.join
+$stderr.puts "Dashboard has finished" if debug
+
+exit 0

@@ -1,0 +1,42 @@
+
+- # under the MIT license, see LICENSE.txt
+
+%h1 schedules
+
+= haml :_pagination, :layout => false
+
+%table.list
+
+  %thead
+    %td
+      owner / [ target ]
+    %td
+      process schedules
+    %td
+      type
+    %td
+      put at
+    %td
+      original
+    %td
+      at
+
+  - @schedules.each do |schedule|
+    %tr
+      %td
+        %div
+          = alink(:expressions, schedule['owner'].sid)
+        - if schedule['target'] && schedule['target'] != schedule['owner']
+          %div
+            = alink(:expressions, schedule['target'].sid)
+      %td
+        = alink(:schedules, schedule['owner'].wfid)
+      %td
+        &= schedule['type']
+      %td
+        = Time.parse(schedule['put_at']).localtime.strftime('%Y/%m/%d %H:%M:%S')
+      %td
+        &= schedule['original']
+      %td
+        = Time.parse(schedule['at']).localtime.strftime('%Y/%m/%d %H:%M:%S')
+

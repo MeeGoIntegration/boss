@@ -1,0 +1,15 @@
+
+# This Gemfile allows anyone wanting to contribute to Ruote, or just run tests
+# to easily obtain all dev dependencies. To get started:
+#
+#   gem install bundler
+#   bundle install --path .ruote_dev_bundle
+
+source 'http://rubygems.org'
+
+gem 'yajl-ruby', :require => 'yajl'
+
+gem 'rufus-jig'
+
+gemspec
+

@@ -1,0 +1,18 @@
+
+- # under the MIT license, see LICENSE.txt
+
+%h1 #{@code} #{@message}
+
+- if @trace
+  %pre.trace #{h(@trace.first.split("\n").first + '...')}
+  %pre.trace{ :style => 'display: none;' } #{h(@trace.join("\n"))}
+
+%a{ :href => "javascript:history.go(-1)" } back
+
+:javascript
+
+  $(document).ready(function() {
+
+    $('pre.trace').on('click', Rk.toggleNext);
+  });
+
