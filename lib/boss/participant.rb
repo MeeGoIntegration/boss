@@ -20,6 +20,9 @@
 # THE SOFTWARE.
 #++
 
+require 'ruote'
+require 'bunny'
+
 module BOSS
 
   #
@@ -182,15 +185,20 @@ module BOSS
     #
     def on_workitem
 
-      instantiate_exchange.publish(
-        message,
-        :routing_key => routing_key,
-        :persistent => persistent,
-        :correlation_id => correlation_id)
+      begin
+        instantiate_exchange.publish(
+                                     message,
+                                     :routing_key => routing_key,
+                                     :persistent => persistent,
+                                     :correlation_id => correlation_id)
 
-      reply if forget
+        reply if forget
+      rescue
+        print "Failed to send AMQP message. Retrying in 5s"
+        re_dispatch(:in => @options['delay'] || '5s')
+      end
     end
-
+    
     def on_cancel
 
       return if opt('discard_cancel')
