@@ -100,7 +100,7 @@ if $pnum >1
   @em = Thread.new { EM.run {} }
   sleep 0.5
   channel = AMQP::Channel.new($connection)
-  channel.prefetch(1)
+  channel.prefetch(20)
   queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
   receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, })
 
