@@ -66,7 +66,12 @@ module Ruote
             @processed_msgs += 1
           end
 
-          break if Time.now.utc - @last_time >= 0.8
+          # This is disabled because last_time is only set in process_schedules
+          # and we run that in separate process. If it was in same process,
+          # this would try to guarantee that schedules get processed at least
+          # once per second.
+          #
+          # break if Time.now.utc - @last_time >= 0.8
 
       end
     end
