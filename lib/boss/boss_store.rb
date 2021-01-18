@@ -72,7 +72,15 @@ module Ruote
           # once per second.
           #
           # break if Time.now.utc - @last_time >= 0.8
+      end
+    end
 
+    def take_a_rest
+      if @processed_msgs < 1
+        @sleep_time += 1 if @sleep_time < 5.0
+        sleep(@sleep_time)
+      else
+        @sleep_time = 0.00
       end
     end
 
