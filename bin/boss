@@ -40,7 +40,6 @@ vhost = conf["boss"]["amqp_vhost"] || "boss"
 db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
 port = Integer(conf["boss"]["viewer_port"]) || 9292
 bind = conf["boss"]["viewer_address"] || "127.0.0.1"
-hprio = /!high/
 
 # Supervisor runs a number of processes each with an identifier
 # We use that to decide what role we have
@@ -88,7 +87,7 @@ if $pnum > 1
   roles = ["worker"]
 end
 
-worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "priority" => hprio, "roles" => roles })
+worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "roles" => roles })
 worker.context['worker_info_enabled'] = debug
 
 # creating the dashboard with a storage context will start all workers
@@ -103,7 +102,7 @@ if $pnum >1
   channel = AMQP::Channel.new($connection)
   channel.prefetch(1)
   queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
-  receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, "priority" => hprio })
+  receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, })
 
   $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
 end
