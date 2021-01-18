@@ -164,4 +164,8 @@ $stderr.puts "Handing over to the dashboard..." if debug
 $dashboard.join
 $stderr.puts "Dashboard has finished" if debug
 
+if $pnum == 0
+  @web_server_thread.join
+end
+
 exit 0
