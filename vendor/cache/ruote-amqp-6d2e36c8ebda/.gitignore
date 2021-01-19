@@ -1,8 +1,0 @@
-*.swp
-work/
-logs/
-pkg/
-doc/
-.bundle
-.rvmrc
-Gemfile.lock
