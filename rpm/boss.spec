@@ -52,7 +52,7 @@ getent passwd boss >/dev/null || useradd -r -s /sbin/nologin -c "User for BOSS" 
 
 %files
 %defattr(-,root,root,-)
-%doc INSTALL README
+%doc README.md
 %dir /etc/skynet
 %dir /etc/supervisor
 %dir /etc/supervisor/conf.d
