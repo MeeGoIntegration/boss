@@ -50,16 +50,18 @@ bind = conf["boss"]["viewer_address"] || "127.0.0.1"
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
 $pnum = pname.split("_")[1].to_i
 
-AMQP.settings[:host] = amqp_host
-AMQP.settings[:port] = Integer(amqp_port)
-AMQP.settings[:user] = user
-AMQP.settings[:pass] = pass
-AMQP.settings[:vhost] = vhost
+$connection_options = {
+    :host => amqp_host,
+    :port => Integer(amqp_port),
+    :username => user,
+    :password => pass,
+    :vhost => vhost,
+}
 AMQP.logging = debug
 
 #test connection
 begin
-  AMQP.start() do |connection|
+  AMQP.start($connection_options) do |connection|
     AMQP::Channel.new(connection) do |channel|
       $stderr.puts "Connection opened ok"
       AMQP.stop { EventMachine.stop }
@@ -96,15 +98,26 @@ $dashboard = Ruote::Dashboard.new(storage)
 $stderr.puts "Dashboard threads running" if debug
 $dashboard.noisy = debug
 
-if $pnum >1
-  @em = Thread.new { EM.run {} }
-  sleep 0.5
-  channel = AMQP::Channel.new($connection)
-  channel.prefetch(20)
-  queue = AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1)
-  receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, })
-
-  $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+if $pnum > 1
+    $em_thread = Thread.new { EventMachine.run {} }
+    sleep 0.5
+    EventMachine.next_tick do
+        AMQP.connect($connection_options) do |connection|
+            $stderr.puts "Connected" if debug
+            Ruote::Amqp.session = connection
+            AMQP::Channel.new(connection, :prefetch => 20) do |channel, open_ok|
+                raise "Channel open failed" unless open_ok.is_a?(AMQ::Protocol::Channel::OpenOk)
+                $stderr.puts "Channel open" if debug
+                AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1) do |queue, declare_ok|
+                    raise "Queue declare failed" unless declare_ok.is_a?(AMQ::Protocol::Queue::DeclareOk)
+                    $stderr.puts "Queue open" if debug
+                    $receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, })
+                    $stderr.puts "Receiver ready" if debug
+                    $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
+                end
+            end
+        end
+    end
 end
 
 RuoteKit.bind_engine(storage)
@@ -128,26 +141,31 @@ end
 
 shutdown = proc {
 
-  $stderr.puts "Shutdown requested by user" if debug
+  $stderr.puts "Shutdown requested by user"
 
   if $pnum == 0
     BossViewer.quit!
     $stderr.puts "Viewer shutdown" if debug
   end
 
-  if $pnum >1
-    receiver.shutdown
-    $stderr.puts "Receiver has shutdown"
+  if $pnum > 1
 
-    AMQP.stop
-    $stderr.puts "AMQP has stopped"
+    $stderr.puts "Shut down receiver" if debug
+    $receiver.shutdown
+    $stderr.puts "Receiver has shutdown" if debug
+
+    $stderr.puts "Close AMQP connection" if debug
+    Ruote::Amqp.session.close do
+        $stderr.puts "AMQP connection closed, stopping EventMachine" if debug
+        EventMachine.stop
+    end
   end
 
   worker.shutdown
-  $stderr.puts "Worker has shutdown"
+  $stderr.puts "Worker has shutdown" if debug
 
   $dashboard.shutdown
-  $stderr.puts "Dashboard has shutdown"
+  $stderr.puts "Dashboard has shutdown" if debug
 
 }
 
@@ -160,12 +178,17 @@ Signal.trap('SIGTERM', shutdown)
 Signal.trap('SIGINT', shutdown)
 Signal.trap('SIGUSR1', memdebug)
 
-$stderr.puts "Handing over to the dashboard..." if debug
+$stderr.puts "Dashboard running..." if debug
 $dashboard.join
 $stderr.puts "Dashboard has finished" if debug
 
 if $pnum == 0
-  @web_server_thread.join
+    $stderr.puts "Waiting for web server thread..." if debug
+    @web_server_thread.join
+end
+if $pnum > 1
+    $stderr.puts "Waiting for EventMachine thread..." if debug
+    $em_thread.join
 end
 
 exit 0
