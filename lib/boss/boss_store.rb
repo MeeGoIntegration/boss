@@ -17,6 +17,9 @@ module Ruote
     attr_reader :number
 
     def initialize(dir, options={})
+      if File.stat(dir).uid != Process.euid
+          raise "Current user is not the owner of the storage #{dir}"
+      end
 
       @number = options.fetch("number", 0)
       $stderr.puts "Storage #{@number}"
