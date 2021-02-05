@@ -3,6 +3,10 @@
 require 'rubygems'
 require 'bundler/setup'
 
+# Eventmachine C extension has some problems, causing amqp operations to block
+# untill it's time to send a heartbeat. So use the pure ruby version for now
+require 'em/pure_ruby'
+
 require 'amqp'
 require 'yajl'
 require 'ruote'
