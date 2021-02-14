@@ -31,6 +31,7 @@ make
 %define bundle_dir %{_libexecdir}/%{name}
 make DESTDIR=%{buildroot} target=%{bundle_dir} install
 %fdupes %{buildroot}%{bundle_dir}
+find %{buildroot} -name gem_make.out -delete
 
 mkdir -p %{buildroot}/etc/skynet
 install -D -m 644 boss.conf %{buildroot}/etc/skynet/boss.conf
