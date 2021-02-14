@@ -1,0 +1,9 @@
+[submodule "ruote"]
+	path = ruote
+	url = https://github.com/MeeGoIntegration/ruote.git
+[submodule "ruote-kit"]
+	path = ruote-kit
+	url = https://github.com/MeeGoIntegration/ruote-kit.git
+[submodule "ruote-amqp"]
+	path = ruote-amqp
+	url = https://github.com/MeeGoIntegration/ruote-amqp.git

@@ -17,59 +17,36 @@ module Ruote
     attr_reader :number
 
     def initialize(dir, options={})
+      if File.stat(dir).uid != Process.euid
+          raise "Current user is not the owner of the storage #{dir}"
+      end
 
       @number = options.fetch("number", 0)
+      $stderr.puts "Storage #{@number}"
       super(dir, options)
     end
 
-    def prepare_msg_doc(action, options)
-
-      # merge! is way faster than merge (no object creation probably)
-
-      @counter ||= 0
-      begin
-        priority = options["workitem"]["fields"]["priority"]
-      rescue
-        priority = "normal"
-
-      end
-
-      t = Time.now.utc
-      ts = "#{t.strftime('%Y-%m-%d')}!#{t.to_i}.#{'%06d' % t.usec}"
-      _id = "#{$$}!#{Thread.current.object_id}!#{priority}!#{ts}!#{'%03d' % @counter}"
-
-      @counter = (@counter + 1) % 1000
-        # some platforms (windows) have shallow usecs, so adding that counter...
-
-      msg = options.merge!('type' => 'msgs', '_id' => _id, 'action' => action)
-
-      msg.delete('_rev')
-        # in case of message replay
-
-      msg
-    end
-
-    def get_msgs (limit, priority)
-
-      msgs = get_many('msgs', priority, {:limit => limit, :noblock => true, :skip => limit * @number})
-      msgs = get_many('msgs', nil, {:limit => limit, :noblock => true, :skip => limit * @number}) if msgs.empty? 
+    def get_msgs(limit)
+      # This skiping of n*limit messages tries to avoid workers trying to fetch
+      # the same messages. The process numbered 2 and up are worker processes.
+      skip_n = @number >= 2 ? @number - 2 : 0
+      msgs = get_many(
+          'msgs', nil,
+          {:limit => limit, :noblock => true, :skip => limit * skip_n}
+      )
       msgs.sort_by { |d| d['put_at'] }
-
     end
 
   end
 
   class BOSSWorker < Ruote::Worker
 
-    attr_reader :priority
     attr_reader :number
 
     def initialize(storage=nil, options={})
-
-      @priority = options.fetch("priority", "high")
       @number = options.fetch("number", 0)
       @roles = options.fetch("roles", [])
-
+      $stderr.puts "Initialise worker number #{@number} roles #{@roles}"
       super(storage)
 
     end
@@ -82,7 +59,7 @@ module Ruote
 
     def process_msgs
 
-      @msgs = @storage.get_msgs(1, @priority) if @msgs.empty?
+      @msgs = @storage.get_msgs(10) if @msgs.empty?
 
       while @msg = @msgs.pop
 
@@ -92,8 +69,21 @@ module Ruote
             @processed_msgs += 1
           end
 
-          break if Time.now.utc - @last_time >= 0.8
+          # This is disabled because last_time is only set in process_schedules
+          # and we run that in separate process. If it was in same process,
+          # this would try to guarantee that schedules get processed at least
+          # once per second.
+          #
+          # break if Time.now.utc - @last_time >= 0.8
+      end
+    end
 
+    def take_a_rest
+      if @processed_msgs < 1
+        @sleep_time += 1 if @sleep_time < 5.0
+        sleep(@sleep_time)
+      else
+        @sleep_time = 0.00
       end
     end
 

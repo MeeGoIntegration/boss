@@ -1,5 +1,30 @@
-install-rest:
-	install -D -m 644 notify_boss.pm $(DESTDIR)/usr/lib/obs/server/plugins/notify_boss.pm
-	install -D -m 644 boss.conf $(DESTDIR)/etc/skynet/boss.conf
-	install -D -m 644 supervisor_boss.conf $(DESTDIR)/etc/supervisor/conf.d/boss.conf
-	install -D -m 755 bin/boss-install $(DESTDIR)/usr/bin/boss-install
+target ?= ./boss-bundle
+bundle_dir = $(DESTDIR)$(target)
+
+vendor/build:
+	mkdir -p vendor/build/gems
+	gem build boss.gemspec
+	mv boss-*.gem vendor/build/gems/
+	cd ruote; gem build ruote.gemspec
+	mv ruote/ruote-*.gem vendor/build/gems/
+	cd ruote-amqp; gem build ruote-amqp.gemspec
+	mv ruote-amqp/ruote-amqp-*.gem vendor/build/gems/
+	cd ruote-kit; gem build ruote-kit.gemspec
+	mv ruote-kit/ruote-kit-*.gem vendor/build/gems/
+
+install: vendor/build
+	cp vendor/build/gems/*.gem vendor/cache/
+	bundle install --local --standalone \
+		--path $(bundle_dir) \
+		--binstubs $(bundle_dir)/bin
+
+clean:
+	rm -rf vendor/build .bundle Gemfile.lock
+
+update_gems: vendor/build
+	cd vendor/build; gem generate_index
+	UPDATE_GEMS=1 bundle package --no-install --path $(bundle_dir)
+
+
+
+.PHONY: clean
