@@ -7,8 +7,6 @@ vendor/build:
 	mv boss-*.gem vendor/build/gems/
 	cd ruote; gem build ruote.gemspec
 	mv ruote/ruote-*.gem vendor/build/gems/
-	cd ruote-amqp; gem build ruote-amqp.gemspec
-	mv ruote-amqp/ruote-amqp-*.gem vendor/build/gems/
 	cd ruote-kit; gem build ruote-kit.gemspec
 	mv ruote-kit/ruote-kit-*.gem vendor/build/gems/
 
