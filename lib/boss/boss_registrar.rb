@@ -15,7 +15,7 @@ class BOSSRegistrar
       $stderr.puts "Register participant :", workitem.fields["name"]
       $stderr.puts "using queue ", workitem.fields["queue"]
       $dashboard.register_participant(workitem.fields["name"],
-                                      Ruote::Amqp::Participant,
+                                      BOSS::Participant,
                                       :routing_key => workitem.fields["queue"],
                                       :position => -2 )
     end
