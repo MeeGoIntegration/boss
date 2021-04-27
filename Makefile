@@ -19,10 +19,17 @@ install: vendor/build
 clean:
 	rm -rf vendor/build .bundle Gemfile.lock
 
+
+# To use this locally to update the gems in vendor/cache:
+#
+# export GEM_HOME=$HOME/.local_gems
+# gem install bundler
+# gem install builder
+# make bundle_dir=. update_gems
+
 update_gems: vendor/build
 	cd vendor/build; gem generate_index
 	UPDATE_GEMS=1 bundle package --no-install --path $(bundle_dir)
-
 
 
 .PHONY: clean
