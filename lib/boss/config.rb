@@ -1,14 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-
-require 'amqp'
 require 'ruote'
-
 require 'pp'
-
-require 'boss/boss_store'
-
 require 'inifile'
 
 STDOUT.sync = true
@@ -84,7 +77,7 @@ module BOSS
   $pp_verbose = true;
 
   # storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
-  @storage = Ruote::BOSSStorage.new(db_path)
+  @storage = BOSS::Storage.new(db_path)
   def storage
     @storage
   end

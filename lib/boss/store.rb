@@ -1,11 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
 require 'ruote'
-require 'ruote/storage/fs_storage'
 
-module Ruote
-  class BOSSStorage < Ruote::FsStorage
+module BOSS
+  class Storage < Ruote::FsStorage
 
     attr_reader :number
 

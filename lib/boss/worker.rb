@@ -1,17 +1,18 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
 require 'ruote'
 require 'pp'
 
-module Ruote
-  class BOSSWorker < Ruote::Worker
+# TODO: move the classes to a different file/module?
+module BOSS
+  class Worker < Ruote::Worker
 
     attr_reader :number
 
     def initialize(storage=nil, options={})
       @number = options.fetch("number", 0)
       @roles = options.fetch("roles", [])
+
       $stderr.puts "Initialise worker number #{@number} roles #{@roles}"
       super(storage)
 

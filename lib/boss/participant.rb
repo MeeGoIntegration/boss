@@ -20,8 +20,7 @@
 # THE SOFTWARE.
 #++
 
-
-#module BOSS
+module BOSS
 
   #
   # This participant publishes messages on AMQP exchanges.
@@ -34,7 +33,7 @@
   #
   #   dashboard.register(
   #     'amqp_participant',
-  #     Ruote::Amqp::Participant,
+  #     BOSS::Participant,
   #     :routing_key => 'nada.x')
   #
   # * params (from the process definition)
@@ -102,7 +101,7 @@
   #
   #   dashboard.register(
   #     'amqp_participant',
-  #     Ruote::Amqp::Participant,
+  #     BOSS::Participant,
   #     :conf => 'fields', :field_prefix => 'amqp_')
   #
   # registers a participant that draws is configuration from workitem fields
@@ -146,7 +145,7 @@
   #
   #   require 'yaml'
   #
-  #   class MyAmqpParticipant < Ruote::Amqp::Participant
+  #   class MyAmqpParticipant < BOSS::Participant
   #
   #     def encode_workitem(workitem)
   #       YAML.dump(workitem)
@@ -155,7 +154,7 @@
   #
   # or when one needs to filter some fields:
   #
-  #   class MyAmqpParticipant < Ruote::Amqp::Participant
+  #   class MyAmqpParticipant < BOSS::Participant
   #
   #     def encode_workitem(workitem)
   #       workitem.fields.delete_if { |k, v| k.match(/^private_/) }
@@ -163,7 +162,7 @@
   #     end
   #   end
   #
-  class BOSSParticipant
+  class Participant
     include Ruote::LocalParticipant
 
     # Initializing the participant, right before calling #on_workitem or
@@ -346,5 +345,5 @@
       nil
     end
   end
-#end
+end
 

@@ -20,6 +20,7 @@
 # THE SOFTWARE.
 #++
 
+module BOSS
 
   #
   # A receiver is plugged between a ruote engine/storage and an AMQP queue.
@@ -34,7 +35,7 @@
   # behaviour by overriding the #decode_workitem method (usually when
   # subclassing)
   #
-  #   class MyYamlReceiver < Ruote::Amqp::Receiver
+  #   class MyYamlReceiver < BOSS::Receiver
   #     def decode_message(headers, payload)
   #       YAML.load(payload)
   #     end
@@ -46,7 +47,7 @@
   # === workitems and launchitems
   #
   # The standard use case is to accept workitems coming back (they probably
-  # left the engine via Ruote::Amqp::Participant). But it's also OK
+  # left the engine via BOSS::Participant). But it's also OK
   # to accept "launchitems", hashes with at least one 'process_definition'
   # (or 'definition') entry.
   #
@@ -73,7 +74,7 @@
   # workitems (messages?) to the engine. This can be changed by overriding
   # the #handle_error method:
   #
-  #   class MyReceiver < Ruote::Amqp::Receiver
+  #   class MyReceiver < BOSS::Receiver
   #     def handle_error(err)
   #       ThatLoggerService.log(err)
   #     end
@@ -85,12 +86,12 @@
   # One can set the "launch_only" option to true when initializing the receiver
   # to prevent it from handling anything but launchitems.
   #
-  #   receiver = Ruote::Amqp::Receiver.new(
+  #   receiver = BOSS::Receiver.new(
   #     @dashboard, @amqp_queue, :launch_only => true)
   #
   # 'launch_only' (string) is valid too.
   #
-class BOSSReceiver < Ruote::Receiver
+class Receiver < Ruote::Receiver
 
 
     attr_reader :queue
@@ -182,3 +183,5 @@ class BOSSReceiver < Ruote::Receiver
   # with a class name). Could be thought of as "anonymous remote error".
   #
   class RemoteError < StandardError; end
+
+end
