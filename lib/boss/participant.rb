@@ -186,8 +186,7 @@ module BOSS
     def on_workitem
 
       begin
-        instantiate_exchange.publish(
-                                     message,
+        instantiate_exchange.publish(message,
                                      :routing_key => routing_key,
                                      :persistent => persistent,
                                      :correlation_id => correlation_id)
@@ -203,11 +202,10 @@ module BOSS
 
       return if opt('discard_cancel')
 
-      instantiate_exchange.publish(
-        encode_cancelitem,
-        :routing_key => routing_key,
-        :persistent => persistent,
-        :correlation_id => correlation_id)
+      instantiate_exchange.publish(encode_cancelitem,
+                                   :routing_key => routing_key,
+                                   :persistent => persistent,
+                                   :correlation_id => correlation_id)
     end
 
     # No need for a dedicated thread when dispatching messages. Respond
