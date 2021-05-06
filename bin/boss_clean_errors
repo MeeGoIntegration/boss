@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby                                                                                                      
+require 'rubygems'
+require 'bundler/setup'
+
+require 'boss/config'
+
+$stderr.puts "Store is #{BOSS.storage}"
+dashboard = Ruote::Dashboard.new(BOSS.storage)
+
+loop do
+  errors=dashboard.errors(:limit=>100)
+  break if errors.length == 0
+  errors.each { |err|
+    age_days=(Time.now - Time.parse(err.at))/(60*60*24)
+    puts "Consider #{err.wfid} from #{err}"
+    if age_days > 4 then
+      puts "Error is from #{age_days} days ago : #{err.at}"
+      puts "#{err.msg['participant_name']} was doing #{err.msg['action']}"
+      puts "Error #{err.message}"
+      puts "removing"
+      dashboard.remove_process(err.wfid)
+    end
+  }
+end

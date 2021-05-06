@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = "boss"
-  s.version     = "0.10.0"
-  s.date        = "2021-01-19"
+  s.version     = "0.11.0"
+  s.date        = "2021-04-27"
   s.summary     = "BOSS"
   s.description = "BOSS packaging gem"
   s.authors     = ["David Greaves and other Jolla sailors"]
@@ -14,15 +14,18 @@ Gem::Specification.new do |s|
       "boss_check_pdef",
   ]
   s.files       = [
-      "lib/boss/boss_receiver.rb",
-      "lib/boss/boss_registrar.rb",
-      "lib/boss/boss_store.rb",
-      "lib/boss/boss_viewer.rb",
+                   "lib/boss/store.rb",
+                   "lib/boss/viewer.rb",
+                   "lib/boss/participant.rb",
+                   "lib/boss/config.rb",
+                   "lib/boss/worker.rb",
+                   "lib/boss/registrar.rb",
+                   "lib/boss/receiver.rb",
+                   "lib/boss.rb",
   ]
-  s.add_runtime_dependency 'amqp'
+  s.add_runtime_dependency 'bunny'
   s.add_runtime_dependency 'yajl-ruby'
   s.add_runtime_dependency 'inifile'
   s.add_runtime_dependency 'ruote'
-  s.add_runtime_dependency 'ruote-amqp'
   s.add_runtime_dependency 'ruote-kit'
 end

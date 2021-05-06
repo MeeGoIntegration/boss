@@ -4,7 +4,6 @@ end
 
 source "file:///#{File.expand_path('.')}/vendor/build" do
   gem "ruote"
-  gem "ruote-amqp"
   gem "ruote-kit"
   gem "boss"
 end
