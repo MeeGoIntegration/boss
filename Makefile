@@ -3,12 +3,18 @@ bundle_dir = $(DESTDIR)$(target)
 
 vendor/build:
 	mkdir -p vendor/build/gems
+
 	gem build boss.gemspec
 	mv boss-*.gem vendor/build/gems/
+
 	cd ruote; gem build ruote.gemspec
 	mv ruote/ruote-*.gem vendor/build/gems/
+
 	cd ruote-kit; gem build ruote-kit.gemspec
 	mv ruote-kit/ruote-kit-*.gem vendor/build/gems/
+
+	cd ruote-sequel; gem build ruote-sequel.gemspec
+	mv ruote-sequel/ruote-sequel-*.gem vendor/build/gems/
 
 install: vendor/build
 	cp vendor/build/gems/*.gem vendor/cache/
