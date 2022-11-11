@@ -12,7 +12,7 @@ BuildRequires: ruby-devel
 BuildRequires: rubygem(bundler)
 BuildRequires: rubygem(builder)
 BuildRequires: gcc-c++
-
+BuildRequires: postgresql-devel
 Obsoletes: boss-bundle
 Provides: boss-bundle
 
