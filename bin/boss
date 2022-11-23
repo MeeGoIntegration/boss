@@ -44,7 +44,7 @@ bind = conf["boss"]["viewer_address"] || "127.0.0.1"
 # 1 => scheduler
 # 2 => worker
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
-$pnum = pname.split("_")[1].to_i
+pnum = pname.split("_")[1].to_i
 
 #Set and test connection
 begin
@@ -69,27 +69,27 @@ rescue Bunny::PossibleAuthenticationFailureError, Bunny::TCPConnectionFailed => 
   exit 1
 end
 
-storage = BOSS::Storage.new(db_path, { :number => $pnum })
+storage = BOSS::Storage.new(db_path, { :number => pnum })
 
 roles = []
-if $pnum == 0
+if pnum == 0
   $stderr.puts "This is the viewer"
   $PROGRAM_NAME = "boss_viewer"
 end
 
-if $pnum == 1
+if pnum == 1
   $stderr.puts "This is the scheduler"
   roles = ["scheduler"]
   $PROGRAM_NAME = "boss_scheduler"
 end
 
-if $pnum > 1
+if pnum > 1
   $stderr.puts "This is a worker"
   roles = ["worker"]
-  $PROGRAM_NAME = "boss_worker_#{$pnum}"
+  $PROGRAM_NAME = "boss_worker_#{pnum}"
 end
 
-worker = BOSS::Worker.new(storage, { "number" => $pnum, "roles" => roles })
+worker = BOSS::Worker.new(storage, { "number" => pnum, "roles" => roles })
 worker.context['worker_info_enabled'] = debug
 
 # creating the dashboard with a storage context will start all workers
@@ -98,10 +98,10 @@ dashboard = Ruote::Dashboard.new(storage)
 $stderr.puts "Dashboard threads running" if debug
 dashboard.noisy = debug
 
-if $pnum >1
+if pnum >1
   channel.prefetch(1)
   queue = channel.queue('ruote_workitems', :durable => 1)
-  receiver = BOSS::Receiver.new(dashboard, queue, { "number" => $pnum })
+  receiver = BOSS::Receiver.new(dashboard, queue, { "number" => pnum })
 
   # Tell the Registrar class what dashboard to use
   BOSS::Registrar.set_dashboard(dashboard)
@@ -116,7 +116,7 @@ RuoteKit.engine.register :clear => false do
   catchall Ruote::StorageParticipant, {'position' => 'over'}
 end
 
-if $pnum == 0
+if pnum == 0
   @web_server_thread = Thread.start do
 
     BOSS::Viewer.run!(options={
@@ -131,12 +131,12 @@ shutdown = proc {
 
   $stderr.puts "Shutdown requested by user"
 
-  if $pnum == 0
+  if pnum == 0
     BOSS::Viewer.quit!
     $stderr.puts "Viewer shutdown" if debug
   end
 
-  if $pnum > 1
+  if pnum > 1
 
     $stderr.puts "Shut down receiver" if debug
     $receiver.shutdown
@@ -167,7 +167,7 @@ $stderr.puts "Dashboard running..." if debug
 $dashboard.join
 $stderr.puts "Dashboard has finished" if debug
 
-if $pnum == 0
+if pnum == 0
     $stderr.puts "Waiting for web server thread..." if debug
     @web_server_thread.join
 end
