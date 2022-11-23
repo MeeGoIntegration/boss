@@ -94,16 +94,18 @@ worker.context['worker_info_enabled'] = debug
 
 # creating the dashboard with a storage context will start all workers
 # each in its own thread
-$dashboard = Ruote::Dashboard.new(storage)
+dashboard = Ruote::Dashboard.new(storage)
 $stderr.puts "Dashboard threads running" if debug
-$dashboard.noisy = debug
+dashboard.noisy = debug
 
 if $pnum >1
   channel.prefetch(1)
   queue = channel.queue('ruote_workitems', :durable => 1)
-  receiver = BOSS::Receiver.new($dashboard, queue, { "number" => $pnum })
+  receiver = BOSS::Receiver.new(dashboard, queue, { "number" => $pnum })
 
-  $dashboard.register_participant 'boss_register', BOSS::Registrar, :position => 'first'
+  # Tell the Registrar class what dashboard to use
+  BOSS::Registrar.set_dashboard(dashboard)
+  dashboard.register_participant 'boss_register', BOSS::Registrar, :position => 'first'
 end
 
 RuoteKit.bind_engine(storage)
