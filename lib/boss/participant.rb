@@ -89,7 +89,7 @@ module BOSS
   #
   # The third, optional, element is a hash of exchange options.
   #
-  # There is more information at http://rubyamqp.info/
+  # There is more information at http://rubybunny.info/
   #
   # By default, 'exchange' is set to [ 'direct', '' ] (the default exchange).
   #
@@ -305,7 +305,7 @@ module BOSS
 
     # Given connection options passed at registration time (when the
     # participant is registered in ruote) or from the process definition,
-    # returns an AMQP::Channel instance.
+    # returns a Bunny::Channel instance.
     #
     def channel
 
@@ -313,7 +313,7 @@ module BOSS
     end
 
     # Given exchange options passed at registrations time or from the process
-    # definition, returns an AMQP::Exchange instance.
+    # definition, returns a Bunny::Exchange instance.
     #
     def instantiate_exchange
 
