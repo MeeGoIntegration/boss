@@ -5,8 +5,8 @@ require 'boss/store'
 require 'boss/viewer'
 require 'boss/worker'
 
-module Boss
+module BOSS
   class << self
-    attr_accessor :connection  # provide class methods for reading/writing
+    attr_accessor :connection  # Allow a default Bunny::Session to be stored
   end
 end

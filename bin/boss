@@ -48,15 +48,15 @@ pnum = pname.split("_")[1].to_i
 
 #Set and test connection
 begin
-  Boss.connection = Bunny.new(:host => amqp_host,
+  BOSS.connection = Bunny.new(:host => amqp_host,
                               :port => amqp_port,
                               :username => user,
                               :password => pass,
                               :vhost => vhost,
                               :log_level => Logger::INFO,
                               )
-  Boss.connection.start
-  channel = Boss.connection.create_channel
+  BOSS.connection.start
+  channel = BOSS.connection.create_channel
   $stderr.puts "Connection opened ok"
 rescue Bunny::PossibleAuthenticationFailureError, Bunny::TCPConnectionFailed => e
   $stderr.puts "Failed to connect to AMQP server, error was :"
@@ -143,7 +143,7 @@ shutdown = proc {
     $stderr.puts "Receiver has shutdown" if debug
 
     $stderr.puts "Close AMQP connection" if debug
-    Boss.connection.stop
+    BOSS.connection.stop
     $stderr.puts "AMQP has stopped"
   end
 

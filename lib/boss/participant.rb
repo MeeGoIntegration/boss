@@ -69,14 +69,14 @@ module BOSS
   #
   # === 'connection'
   #
-  # A hash of connection options. This is direcly fed to the amqp gem, the
+  # A hash of connection options. This is direcly fed to the Bunny gem, the
   # options of that gem apply thus ('host', 'port', 'vhost', 'username' and
   # 'password').
   #
   # If no 'connection' (or :connection) hash is passed, the participant
-  # will attempt to use the connection (AMQP::Session) found in
-  # Ruote::Amqp.session. If there is nothing in there, it will [attempt] to
-  # create a new connection with AMQP's default settings.
+  # will attempt to use the connection (Bunny::Session) found in
+  # BOSS.connection. If there is nothing in there, it will [attempt] to
+  # create a new connection with Bunny's default settings.
   #
   # === 'exchange'
   #
