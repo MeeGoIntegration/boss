@@ -19,7 +19,7 @@ STDERR.sync = true
 
 # This reads the config and populates the BOSS module with a BOSS.conf
 # and BOSS.storage
-require 'boss/config'
+BOSS.read_config
 
 amqp_host, amqp_port = ( BOSS.conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
 user = BOSS.conf["boss"]["amqp_user"] || "boss"
