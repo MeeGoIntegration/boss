@@ -14,27 +14,33 @@ require 'optparse'
 
 $stderr.puts "Read configuration\n"
 module BOSS
+  boss_config_file = nil
   OptionParser.new do |o|
-    o.on('-cMANDATORY CONFIGFILE', "Config file") { |filename| @boss_config_file = filename }
+    o.on('-c CONFIGFILE', "Config file (merged with /etc/skynet/skynet.conf") { |filename| boss_config_file = filename }
     o.on('-h') { puts o; exit }
     o.parse!
   end
-  if not @boss_config_file
-    $stderr.puts "No -c config file"
-    raise OptionParser::MissingArgument
-  end
 
-  conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
-  conf = conf.merge(IniFile.load(@boss_config_file))
-  debug = (conf["boss"]["debug"] == true)
+  @conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
+  if boss_config_file
+    @conf = @conf.merge(IniFile.load(boss_config_file))
+  end
+  debug = (@conf["boss"]["debug"] == true)
 
   $stderr.puts "Read configuration as:\n#{conf}\n" if debug
 
-  db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
+  if @conf["boss"]["db"]
+    require 'ruote-sequel'
+    sequel = Sequel.connect(@conf["boss"]["db"])
+    opts = { 'remote_definition_allowed' => true }
+    @storage = Ruote::Sequel::Storage.new(sequel, opts)
+    $stderr.puts "Setup Sequel Storage using : #{sequel}\n" if debug
+  else
+    db_path = @conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
+    @storage = BOSS::Storage.new(db_path, { :number => $pnum })
+    $stderr.puts "Setup Path Storage using : #{db_path}\n" if debug
+  end
 
-  $pp_verbose = true;
-
-  @storage = BOSS::Storage.new(db_path)
   def storage
     @storage
   end

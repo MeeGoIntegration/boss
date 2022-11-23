@@ -6,7 +6,6 @@ require 'bundler/setup'
 require 'bunny'
 require 'yajl'
 require 'ruote'
-require 'ruote/storage/fs_storage'
 require 'ruote-kit'
 
 require 'pp'
@@ -18,24 +17,16 @@ require 'inifile'
 STDOUT.sync = true
 STDERR.sync = true
 
-if ARGV[0].nil?
-    $stderr.puts "No arguments provided. Please provide path to confiuration file."
-    exit 1
-end
+# This reads the config and populates the BOSS module with a BOSS.conf
+# and BOSS.storage
+require 'boss/config'
 
-conf = IniFile.load("/etc/skynet/skynet.conf") || IniFile.new
-conf = conf.merge(IniFile.load(ARGV[0]))
-debug = (conf["boss"]["debug"] == true)
-
-$stderr.puts "Read configuration as:\n#{conf}\n" if debug
-
-amqp_host, amqp_port = ( conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
-user = conf["boss"]["amqp_user"] || "boss"
-pass = conf["boss"]["amqp_pwd"]  || "boss"
-vhost = conf["boss"]["amqp_vhost"] || "boss"
-db_path = conf["boss"]["db_path"] || "/var/spool/boss/boss_ruote_db"
-port = Integer(conf["boss"]["viewer_port"]) || 9292
-bind = conf["boss"]["viewer_address"] || "127.0.0.1"
+amqp_host, amqp_port = ( BOSS.conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
+user = BOSS.conf["boss"]["amqp_user"] || "boss"
+pass = BOSS.conf["boss"]["amqp_pwd"]  || "boss"
+vhost = BOSS.conf["boss"]["amqp_vhost"] || "boss"
+port = Integer(BOSS.conf["boss"]["viewer_port"]) || 9292
+bind = BOSS.conf["boss"]["viewer_address"] || "127.0.0.1"
 
 # Supervisor runs a number of processes each with an identifier
 # We use that to decide what role we have
@@ -69,7 +60,6 @@ rescue Bunny::PossibleAuthenticationFailureError, Bunny::TCPConnectionFailed => 
   exit 1
 end
 
-storage = BOSS::Storage.new(db_path, { :number => pnum })
 
 roles = []
 if pnum == 0
@@ -89,12 +79,12 @@ if pnum > 1
   $PROGRAM_NAME = "boss_worker_#{pnum}"
 end
 
-worker = BOSS::Worker.new(storage, { "number" => pnum, "roles" => roles })
+worker = BOSS::Worker.new(BOSS.storage, { "number" => pnum, "roles" => roles })
 worker.context['worker_info_enabled'] = debug
 
 # creating the dashboard with a storage context will start all workers
 # each in its own thread
-dashboard = Ruote::Dashboard.new(storage)
+dashboard = Ruote::Dashboard.new(BOSS.storage)
 $stderr.puts "Dashboard threads running" if debug
 dashboard.noisy = debug
 
@@ -108,7 +98,7 @@ if pnum >1
   dashboard.register_participant 'boss_register', BOSS::Registrar, :position => 'first'
 end
 
-RuoteKit.bind_engine(storage)
+RuoteKit.bind_engine(BOSS.storage)
 
 RuoteKit.engine.register :clear => false do
   # register forces 'override' to false, but postion 'over' overrides that
