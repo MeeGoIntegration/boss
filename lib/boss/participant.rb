@@ -330,7 +330,7 @@ module BOSS
           h[k.to_sym] = v
         }
 
-        Bunny::Exchange.new(channel, type.to_sym, name)#, exchange_opts)
+        Bunny::Exchange.new(channel, type.to_sym, name, exchange_opts)
       end
     end
 
