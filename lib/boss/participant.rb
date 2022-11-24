@@ -298,8 +298,8 @@ module BOSS
 
       ocon = opt('connection')
 
-      if Boss.connection && ( ! ocon)
-        Boss.connection
+      if BOSS.connection && ( ! ocon)
+        BOSS.connection
       else
         Bunny.new(Ruote.keys_to_sym(ocon || {}))
       end
