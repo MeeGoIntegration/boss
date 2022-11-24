@@ -21,7 +21,7 @@ module BOSS
     end
 
     def consume(workitem)
-      assert @@dashboard, "Provide a dashboard via BOSS::Registrar.sst_dashboard()"
+      raise "Provide a dashboard via BOSS::Registrar.sst_dashboard()" unless @@dashboard
       if workitem.params["action"] == "unregister"
         $stderr.puts "UnRegister participant :", workitem.fields["name"]
         @@dashboard.unregister_participant(workitem.fields["name"])

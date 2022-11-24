@@ -20,6 +20,7 @@ module BOSS
 
     def handle_step_error(e, msg)
       puts 'ruote step error: ' + e.inspect
+      puts e.backtrace
       pp msg
 
     end

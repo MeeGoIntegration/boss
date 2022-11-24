@@ -192,8 +192,10 @@ module BOSS
                                      :correlation_id => correlation_id)
 
         reply if forget
-      rescue
-        print "Failed to send AMQP message. Retrying in 5s"
+      rescue => e
+        print "Failed to send AMQP message. Retrying in 5s\n"
+        puts e.inspect
+        puts e.backtrace
         re_dispatch(:in => @options['delay'] || '5s')
       end
     end
