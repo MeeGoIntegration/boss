@@ -20,6 +20,7 @@ STDERR.sync = true
 # This reads the config and populates the BOSS module with a BOSS.conf
 # and BOSS.storage
 BOSS.read_config
+debug = BOSS.conf["boss"]["debug"]
 
 # Supervisor runs a number of processes each with an identifier
 # We use that to decide what role we have

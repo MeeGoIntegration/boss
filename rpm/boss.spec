@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.11.0
+Version: 0.12.0
 Release: 1
 Summary: Build Orchestration Server System
 URL: https://github.com/MeeGoIntegration/boss
@@ -25,6 +25,7 @@ integrated directly into BOSS.
 %setup
 
 %build
+make clean
 make
 
 %install
@@ -39,9 +40,10 @@ mkdir -p %{buildroot}/etc/supervisor/conf.d
 install -D -m 644 supervisor_boss.conf %{buildroot}/etc/supervisor/conf.d/boss.conf
 
 mkdir -p %{buildroot}%{_bindir}
-ln -s %{bundle_dir}/bin/boss %{buildroot}%{_bindir}/boss
-ln -s %{bundle_dir}/bin/boss_check_pdef %{buildroot}%{_bindir}/boss_check_pdef
-ln -s %{bundle_dir}/bin/boss_clean_processes %{buildroot}%{_bindir}/boss_clean_processes
+bins="boss boss_check_pdef boss_clean_processes boss_clean_errors"
+for b in $bins; do
+    ln -s %{bundle_dir}/bin/$b %{buildroot}%{_bindir}/$b
+done
 
 # Change #!/usr/local/bin/ruby in some gems to #!/usr/bin/ruby
 # They are test scripts, but it confuses rpm auto requires
@@ -63,3 +65,4 @@ getent passwd boss >/dev/null || useradd -r -s /sbin/nologin -c "User for BOSS" 
 %{_bindir}/boss
 %{_bindir}/boss_check_pdef
 %{_bindir}/boss_clean_processes
+%{_bindir}/boss_clean_errors
