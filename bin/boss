@@ -112,7 +112,7 @@ shutdown = proc {
   worker.shutdown
   $stderr.puts "Worker has shutdown" if debug
 
-  $dashboard.shutdown
+  dashboard.shutdown
   $stderr.puts "Dashboard has shutdown" if debug
 
 }
@@ -126,7 +126,7 @@ Signal.trap('SIGINT', shutdown)
 Signal.trap('SIGUSR1', memdebug)
 
 $stderr.puts "Dashboard running..." if debug
-$dashboard.join
+dashboard.join
 $stderr.puts "Dashboard has finished" if debug
 
 if pnum == 0
