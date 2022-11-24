@@ -27,7 +27,7 @@ module BOSS
 
     def process_msgs
 
-      @msgs = @storage.get_msgs(10) if @msgs.empty?
+      @msgs = @storage.get_msgs if @msgs.empty?
 
       while @msg = @msgs.pop
 
