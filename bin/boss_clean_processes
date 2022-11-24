@@ -4,20 +4,19 @@ require 'bundler/setup'
 
 require 'yajl'
 require 'ruote'
-require 'ruote/storage/fs_storage'
+require 'boss'
 
-engine = Ruote::Engine.new(
-    # Use boss.config
-    Ruote::FsStorage.new('/var/spool/boss/boss_ruote_db/')
-)
+BOSS.read_config
+
+dashboard = Ruote::Dashboard.new(BOSS.storage)
 
 if ARGV[0] == 'pid'
-    p = engine.process(ARGV[1])
+    p = dashboard.process(ARGV[1])
     puts "killing #{p.definition_name} : #{p.wfid}"
-    engine.kill( p.wfid )
+    dashboard.kill( p.wfid )
 else
-    engine.process_ids.each { |pid|
-        p = engine.process(pid)
+    dashboard.process_ids.each { |pid|
+        p = dashboard.process(pid)
         puts "looking at #{p.definition_name}"
         if (
             ARGV[0] == p.definition_name or
@@ -25,7 +24,7 @@ else
             ARGV[0] == p.position
         ) then
             puts "killing #{p.definition_name} : #{p.wfid}"
-            engine.kill( p.wfid )
+            dashboard.kill( p.wfid )
         end
     }
 end

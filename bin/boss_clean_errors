@@ -2,7 +2,9 @@
 require 'rubygems'
 require 'bundler/setup'
 
-require 'boss/config'
+require 'boss'
+
+BOSS.read_config
 
 $stderr.puts "Store is #{BOSS.storage}"
 dashboard = Ruote::Dashboard.new(BOSS.storage)
