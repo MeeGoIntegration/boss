@@ -1,4 +1,3 @@
-require 'boss/storage'
 require 'inifile'
 require 'optparse'
 
