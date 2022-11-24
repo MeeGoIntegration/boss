@@ -1,10 +1,10 @@
-require 'boss/config'
 require 'boss/participant'
 require 'boss/receiver'
 require 'boss/registrar'
 require 'boss/store'
 require 'boss/viewer'
 require 'boss/worker'
+require 'boss/config'
 
 module BOSS
   class << self
