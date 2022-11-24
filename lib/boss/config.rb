@@ -54,4 +54,32 @@ module BOSS
     end
     module_function :storage
   end
+
+  # Connect to amqp broker
+  def self.connect_to_amqp
+    amqp_host, amqp_port = ( @conf["boss"]["amqp_host"] || "127.0.0.1:5672" ).split(":")
+    user = @conf["boss"]["amqp_user"] || "boss"
+    pass = @conf["boss"]["amqp_pwd"]  || "boss"
+    vhost = @conf["boss"]["amqp_vhost"] || "boss"
+
+    @connection = Bunny.new(:host => amqp_host,
+                              :port => amqp_port,
+                              :username => user,
+                              :password => pass,
+                              :vhost => vhost,
+                              :log_level => Logger::INFO,
+                              )
+    @connection.start
+    @channel = @connection.create_channel
+    $stderr.puts "Connection opened ok"
+  rescue Bunny::PossibleAuthenticationFailureError, Bunny::TCPConnectionFailed => e
+    $stderr.puts "Failed to connect to AMQP server, error was :"
+    $stderr.puts e.message
+    $stderr.puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
+    $stderr.puts "Run the following commands as root on the AMQP server :"
+    $stderr.puts "/usr/sbin/rabbitmqctl add_vhost #{vhost}"
+    $stderr.puts "/usr/sbin/rabbitmqctl add_user #{user} #{pass}"
+    $stderr.puts "/usr/sbin/rabbitmqctl set_permissions -p #{vhost} #{user} '.*' '.*' '.*'"
+    exit 1
+  end
 end
