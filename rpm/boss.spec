@@ -1,5 +1,5 @@
 Name: boss
-Version: 0.10.0
+Version: 0.11.0
 Release: 1
 Summary: Build Orchestration Server System
 URL: https://github.com/MeeGoIntegration/boss

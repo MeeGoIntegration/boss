@@ -3,23 +3,15 @@
 require 'rubygems'
 require 'bundler/setup'
 
-# Eventmachine C extension has some problems, causing amqp operations to block
-# untill it's time to send a heartbeat. So use the pure ruby version for now
-require 'em/pure_ruby'
-
-require 'amqp'
+require 'bunny'
 require 'yajl'
 require 'ruote'
 require 'ruote/storage/fs_storage'
-require 'ruote-amqp'
 require 'ruote-kit'
 
 require 'pp'
 
-require 'boss/boss_store'
-require 'boss/boss_viewer'
-require 'boss/boss_receiver'
-require 'boss/boss_registrar'
+require 'boss'
 
 require 'inifile'
 
@@ -52,26 +44,21 @@ bind = conf["boss"]["viewer_address"] || "127.0.0.1"
 # 1 => scheduler
 # 2 => worker
 pname = ENV["SUPERVISOR_PROCESS_NAME"] || "boss_0"
-$pnum = pname.split("_")[1].to_i
+pnum = pname.split("_")[1].to_i
 
-$connection_options = {
-    :host => amqp_host,
-    :port => Integer(amqp_port),
-    :username => user,
-    :password => pass,
-    :vhost => vhost,
-}
-AMQP.logging = debug
-
-#test connection
+#Set and test connection
 begin
-  AMQP.start($connection_options) do |connection|
-    AMQP::Channel.new(connection) do |channel|
-      $stderr.puts "Connection opened ok"
-      AMQP.stop { EventMachine.stop }
-    end
-  end
-rescue AMQP::Error => e
+  BOSS.connection = Bunny.new(:host => amqp_host,
+                              :port => amqp_port,
+                              :username => user,
+                              :password => pass,
+                              :vhost => vhost,
+                              :log_level => Logger::INFO,
+                              )
+  BOSS.connection.start
+  channel = BOSS.connection.create_channel
+  $stderr.puts "Connection opened ok"
+rescue Bunny::PossibleAuthenticationFailureError, Bunny::TCPConnectionFailed => e
   $stderr.puts "Failed to connect to AMQP server, error was :"
   $stderr.puts e.message
   $stderr.puts "Please check that the settings in /etc/skynet/skynet.conf are correct."
@@ -82,46 +69,43 @@ rescue AMQP::Error => e
   exit 1
 end
 
-storage = Ruote::BOSSStorage.new(db_path, { :number => $pnum })
+storage = BOSS::Storage.new(db_path, { :number => pnum })
 
 roles = []
-if $pnum == 1
+if pnum == 0
+  $stderr.puts "This is the viewer"
+  $PROGRAM_NAME = "boss_viewer"
+end
+
+if pnum == 1
+  $stderr.puts "This is the scheduler"
   roles = ["scheduler"]
+  $PROGRAM_NAME = "boss_scheduler"
 end
 
-if $pnum > 1
+if pnum > 1
+  $stderr.puts "This is a worker"
   roles = ["worker"]
+  $PROGRAM_NAME = "boss_worker_#{pnum}"
 end
 
-worker = Ruote::BOSSWorker.new(storage, { "number" => $pnum, "roles" => roles })
+worker = BOSS::Worker.new(storage, { "number" => pnum, "roles" => roles })
 worker.context['worker_info_enabled'] = debug
 
 # creating the dashboard with a storage context will start all workers
 # each in its own thread
-$dashboard = Ruote::Dashboard.new(storage)
+dashboard = Ruote::Dashboard.new(storage)
 $stderr.puts "Dashboard threads running" if debug
-$dashboard.noisy = debug
+dashboard.noisy = debug
 
-if $pnum > 1
-    $em_thread = Thread.new { EventMachine.run {} }
-    sleep 0.5
-    EventMachine.next_tick do
-        AMQP.connect($connection_options) do |connection|
-            $stderr.puts "Connected" if debug
-            Ruote::Amqp.session = connection
-            AMQP::Channel.new(connection, :prefetch => 20) do |channel, open_ok|
-                raise "Channel open failed" unless open_ok.is_a?(AMQ::Protocol::Channel::OpenOk)
-                $stderr.puts "Channel open" if debug
-                AMQP::Queue.new(channel, 'ruote_workitems', :durable => 1) do |queue, declare_ok|
-                    raise "Queue declare failed" unless declare_ok.is_a?(AMQ::Protocol::Queue::DeclareOk)
-                    $stderr.puts "Queue open" if debug
-                    $receiver = BOSSReceiver.new($dashboard, queue, { "number" => $pnum, })
-                    $stderr.puts "Receiver ready" if debug
-                    $dashboard.register_participant 'boss_register', BOSSRegistrar, :position => 'first'
-                end
-            end
-        end
-    end
+if pnum >1
+  channel.prefetch(1)
+  queue = channel.queue('ruote_workitems', :durable => 1)
+  receiver = BOSS::Receiver.new(dashboard, queue, { "number" => pnum })
+
+  # Tell the Registrar class what dashboard to use
+  BOSS::Registrar.set_dashboard(dashboard)
+  dashboard.register_participant 'boss_register', BOSS::Registrar, :position => 'first'
 end
 
 RuoteKit.bind_engine(storage)
@@ -132,10 +116,10 @@ RuoteKit.engine.register :clear => false do
   catchall Ruote::StorageParticipant, {'position' => 'over'}
 end
 
-if $pnum == 0
+if pnum == 0
   @web_server_thread = Thread.start do
 
-    BossViewer.run!(options={
+    BOSS::Viewer.run!(options={
       :bind => bind,
       :port => port,
       :logging => true
@@ -147,22 +131,20 @@ shutdown = proc {
 
   $stderr.puts "Shutdown requested by user"
 
-  if $pnum == 0
-    BossViewer.quit!
+  if pnum == 0
+    BOSS::Viewer.quit!
     $stderr.puts "Viewer shutdown" if debug
   end
 
-  if $pnum > 1
+  if pnum > 1
 
     $stderr.puts "Shut down receiver" if debug
     $receiver.shutdown
     $stderr.puts "Receiver has shutdown" if debug
 
     $stderr.puts "Close AMQP connection" if debug
-    Ruote::Amqp.session.close do
-        $stderr.puts "AMQP connection closed, stopping EventMachine" if debug
-        EventMachine.stop
-    end
+    BOSS.connection.stop
+    $stderr.puts "AMQP has stopped"
   end
 
   worker.shutdown
@@ -177,7 +159,6 @@ memdebug = proc {
   pp GC.stat
 }
 
-
 Signal.trap('SIGTERM', shutdown)
 Signal.trap('SIGINT', shutdown)
 Signal.trap('SIGUSR1', memdebug)
@@ -186,13 +167,9 @@ $stderr.puts "Dashboard running..." if debug
 $dashboard.join
 $stderr.puts "Dashboard has finished" if debug
 
-if $pnum == 0
+if pnum == 0
     $stderr.puts "Waiting for web server thread..." if debug
     @web_server_thread.join
-end
-if $pnum > 1
-    $stderr.puts "Waiting for EventMachine thread..." if debug
-    $em_thread.join
 end
 
 exit 0
