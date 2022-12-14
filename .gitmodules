@@ -4,3 +4,6 @@
 [submodule "ruote-kit"]
 	path = ruote-kit
 	url = https://github.com/MeeGoIntegration/ruote-kit.git
+[submodule "ruote-sequel"]
+	path = ruote-sequel
+	url = https://github.com/lbt/ruote-sequel

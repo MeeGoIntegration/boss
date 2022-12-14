@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'ruote'
+require 'ruote-fs'
 
 module BOSS
   class Storage < Ruote::FsStorage

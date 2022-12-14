@@ -20,13 +20,14 @@ module BOSS
 
     def handle_step_error(e, msg)
       puts 'ruote step error: ' + e.inspect
+      puts e.backtrace
       pp msg
 
     end
 
     def process_msgs
 
-      @msgs = @storage.get_msgs(10) if @msgs.empty?
+      @msgs = @storage.get_msgs if @msgs.empty?
 
       while @msg = @msgs.pop
 

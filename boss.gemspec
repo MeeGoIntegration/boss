@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = "boss"
-  s.version     = "0.11.0"
-  s.date        = "2021-04-27"
+  s.version     = "0.12.0"
+  s.date        = "2022-12-14"
   s.summary     = "BOSS"
   s.description = "BOSS packaging gem"
   s.authors     = ["David Greaves and other Jolla sailors"]
@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.executables = [
       "boss",
       "boss_clean_processes",
+      "boss_clean_errors",
       "boss_check_pdef",
   ]
   s.files       = [
@@ -28,4 +29,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'inifile'
   s.add_runtime_dependency 'ruote'
   s.add_runtime_dependency 'ruote-kit'
+  s.add_runtime_dependency 'ruote-sequel'
+  s.add_runtime_dependency 'pg'
 end
